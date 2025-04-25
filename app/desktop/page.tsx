@@ -16,7 +16,7 @@ export default function Desktop() {
     <div>
       <div className="absolute w-full h-full -z-100">
         <Image
-          src={"/desktop.png"}
+          src={"/revisedHoneyOS/desktop.png"}
           height={100}
           width={100}
           className="w-full h-full"
@@ -31,7 +31,6 @@ export default function Desktop() {
             })}
           </div>
         ) : null}
-        <Taskbar />
         <div className="grid grid-cols-2 grid-rows-2 h-[100vh]">
           <div className="col-span-1 row-span-2">
             <Terminal />
@@ -42,6 +41,7 @@ export default function Desktop() {
           <div className="col-start-2 row-start-2">
             <Voice />
           </div>
+          <Taskbar />
         </div>
       </div>
     </div>
