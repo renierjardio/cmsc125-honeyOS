@@ -40,9 +40,9 @@ export default function Taskbar() {
   }, []);
 
   return (
-    <div className="text-sm flex items-center justify-center font-consolas space-x-1 gap-5 text-white w-[100vw] h-[10vh]">
+    <div className="text-sm flex items-center justify-center font-consolas space-x-1 gap-5 text-white w-[100vw] h-[15vh]">
       <div
-        className={`flex w-20 h-20 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
+        className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
             isHoveringMic
@@ -54,11 +54,11 @@ export default function Taskbar() {
         onMouseEnter={() => setIsHoveringMic(true)}
         onMouseLeave={() => setIsHoveringMic(false)}
       >
-        <FaMicrophoneAlt size={30} color={"white"} />
+        <FaMicrophoneAlt size={50} color={"white"} />
       </div>
 
       <div
-        className={`flex w-20 h-20 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
+        className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
             isHoveringNote
@@ -83,11 +83,11 @@ export default function Taskbar() {
           )
         }
       >
-        <Icon path={mdiNoteText} size={1.5} color={"white"} />
+        <Icon path={mdiNoteText} size={2.5} color={"white"} />
       </div>
 
       <div
-        className={`flex w-20 h-20 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
+        className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
             isHoveringFolder
@@ -105,11 +105,11 @@ export default function Taskbar() {
           })
         }
       >
-        <FaFolder size={30} color={"white"} />
+        <FaFolder size={50} color={"white"} />
       </div>
 
       <div
-        className={`flex w-20 h-20 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
+        className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
             isHoveringTask
@@ -121,11 +121,11 @@ export default function Taskbar() {
         onMouseEnter={() => setIsHoveringTask(true)}
         onMouseLeave={() => setIsHoveringTask(false)}
       >
-        <Icon path={mdiCalendarClock} size={1.5} color={"white"} />
+        <Icon path={mdiCalendarClock} size={2.5} color={"white"} />
       </div>
 
       <div
-        className={`flex w-20 h-20 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
+        className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
             isHoveringCamera
@@ -143,11 +143,11 @@ export default function Taskbar() {
           })
         }
       >
-        <FaCamera size={30} color={"white"} />
+        <FaCamera size={50} color={"white"} />
       </div>
 
       <div
-        className={`flex w-20 h-20 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
+        className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
             isHoveringSpotify
@@ -165,11 +165,11 @@ export default function Taskbar() {
           })
         }
       >
-        <FaSpotify size={30} color={"white"} />
+        <FaSpotify size={50} color={"white"} />
       </div>
 
       <div
-        className={`flex w-20 h-20 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
+        className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
             isHoveringChess
@@ -187,7 +187,7 @@ export default function Taskbar() {
           })
         }
       >
-        <FaChess size={30} color={"white"} />
+        <FaChess size={50} color={"white"} />
       </div>
     </div>
   );
