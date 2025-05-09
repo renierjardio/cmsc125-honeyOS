@@ -23,6 +23,7 @@ export default function Desktop() {
           alt="wallpaper"
         />
       </div>
+      {/*  
       <div className="font-consolas relative w-full h-full">
         {numberOfOpenedWindows ? (
           <div className={"absolute z-20 w-full h-full pointer-events-none"}>
@@ -43,6 +44,19 @@ export default function Desktop() {
           </div>
           <Taskbar />
         </div>
+      </div>
+      */}
+      <div className="font-consolas relative flex items-center w-full h-full bg-slate-100">
+        {numberOfOpenedWindows ? (
+          <div className={"absolute z-20 w-full h-full pointer-events-none"}>
+            {openedWindows.map((window, index) => {
+              return window.html && window.html;
+            })}
+          </div>
+        ) : null}
+      </div>
+      <div className="absolute w-full h-full flex z-10 items-end">
+        <Taskbar />
       </div>
     </div>
   );
