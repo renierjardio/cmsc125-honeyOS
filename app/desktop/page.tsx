@@ -14,7 +14,7 @@ export default function Desktop() {
     useContext(OpenedWindowsContext);
 
   return (
-    <div>
+    <div className="w-full h-full">
       <div className="absolute w-full h-full -z-100">
         <Image
           src={"/revisedHoneyOS/desktop.png"}
@@ -49,7 +49,10 @@ export default function Desktop() {
 
       </div>
       */}
-      <div className="font-consolas relative flex items-center w-full h-full bg-slate-100">
+      <div>
+        <PowerButton />
+      </div>
+      <div className="font-consolas relative w-full h-full">
         {numberOfOpenedWindows ? (
           <div className={"absolute z-20 w-full h-full pointer-events-none"}>
             {openedWindows.map((window, index) => {
@@ -58,7 +61,7 @@ export default function Desktop() {
           </div>
         ) : null}
       </div>
-      <div className="absolute w-full h-full flex z-10 items-end">
+      <div className="absolute bottom-0 left-0 w-full z-10">
         <Taskbar />
       </div>
     </div>

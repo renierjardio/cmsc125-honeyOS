@@ -7,10 +7,13 @@ import { confirm } from "@tauri-apps/api/dialog";
 
 export default function PowerButton() {
   const handlePowerClick = async () => {
-    const shouldClose = await confirm("Are you sure you want to shut down HoneyOS?", {
-      title: "Confirm Exit",
-      type: "warning",
-    });
+    const shouldClose = await confirm(
+      "Are you sure you want to shut down HoneyOS?",
+      {
+        title: "Confirm Exit",
+        type: "warning",
+      }
+    );
 
     if (shouldClose) {
       await appWindow.close();
@@ -19,7 +22,7 @@ export default function PowerButton() {
 
   return (
     <div
-      className="absolute -left-8 -top-8 z-50 cursor-pointer hover:brightness-75 transition duration-200"
+      className="absolute -left-8 -top-8 z-20 cursor-pointer hover:brightness-75 transition duration-200"
       onClick={handlePowerClick}
     >
       <Image
