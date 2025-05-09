@@ -7,6 +7,7 @@ import Voice from "./voice";
 import Taskbar from "./taskbar";
 import React, { useContext, useEffect } from "react";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
+import PowerButton from "./powerButton";
 
 export default function Desktop() {
   const { openedWindows, setOpenedWindows, numberOfOpenedWindows } =
@@ -32,6 +33,7 @@ export default function Desktop() {
             })}
           </div>
         ) : null}
+        <div><PowerButton/></div>
         <div className="grid grid-cols-2 grid-rows-2 h-[100vh]">
           <div className="col-span-1 row-span-2">
             <Terminal />
@@ -44,6 +46,7 @@ export default function Desktop() {
           </div>
           <Taskbar />
         </div>
+
       </div>
       */}
       <div className="font-consolas relative flex items-center w-full h-full bg-slate-100">
