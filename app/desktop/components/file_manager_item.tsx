@@ -99,12 +99,15 @@ const FileManagerItem: React.FC<FileManagerItemProps> = ({
             </p>
             <div className="flex justify-end mt-4">
               <button
-                className="p-2 border mr-2"
+                className="p-2 border rounded-lg mr-2 hover:bg-gray-200 hover:text-black ease-in-out duration-300"
                 onClick={() => setIsDeleteConfirmOpen(false)}
               >
                 Cancel
               </button>
-              <button className="p-2 border" onClick={handleDeleteConfirm}>
+              <button
+                className="p-2 border rounded-lg hover:bg-gray-200 hover:text-black ease-in-out duration-300"
+                onClick={handleDeleteConfirm}
+              >
                 Delete
               </button>
             </div>
