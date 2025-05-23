@@ -5,13 +5,7 @@ import NewFilePopup from "../desktop/components/file_manager_popup";
 import FileManagerItem from "@/app/desktop/components/file_manager_item";
 import { HoneyFile, WindowProps } from "@/app/types";
 import { FaFolder, FaFolderPlus } from "react-icons/fa";
-import {
-  DocumentTextIcon,
-  EllipsisVerticalIcon,
-  FolderIcon,
-  PhotoIcon,
-  TrashIcon,
-} from "@heroicons/react/16/solid";
+import Image from "next/image";
 import { OpenNote } from "@/app/desktop/programOpener";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
 import useFont from "@/hooks/useFont";
@@ -198,9 +192,14 @@ export default function FileManager({ windowIndex }: WindowProps) {
       >
         <div className="flex items-center space-x-2">
           <button onClick={exitCurrentDir} className={"text-sm"}>
-            ...
+            <Image
+              src={"/revisedHoneyOS/backButton.png"}
+              height={40}
+              width={40}
+              alt="back button"
+            />
           </button>
-          <div className="overflow-x-auto whitespace-nowrap">
+          <div className="overflow-x-auto whitespace-nowrap text-[#743D31] shadow-md font-bold">
             {honey_directory()}
           </div>
           <div
