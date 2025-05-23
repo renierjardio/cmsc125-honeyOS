@@ -40,7 +40,7 @@ export default function Taskbar() {
   }, []);
 
   return (
-    <div className="text-sm flex items-center justify-center font-consolas space-x-1 gap-5 text-white w-full h-full">
+    <div className="text-sm flex items-center justify-center font-consolas space-x-1 gap-5 text-white w-[100vw] h-[15vh]">
       <div
         className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{

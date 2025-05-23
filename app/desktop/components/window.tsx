@@ -209,7 +209,7 @@ export default function WindowScreen({
           className={`flex justify-between items-center text-white modal-action absolute ${
             openedWindows[windowIndex].maximized ? "-top-8" : "-top-12"
           } 
-                w-full h-[5vh] select-none`}
+                w-full h-[5vh] select-none bg-[#743D31]`}
           onMouseDown={handleMouseDown}
         >
           <span className="pl-[1vw] flex flex-row space-x-3">
