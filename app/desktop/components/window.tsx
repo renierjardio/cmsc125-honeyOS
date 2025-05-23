@@ -5,6 +5,7 @@ import useFont from "@/hooks/useFont";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
 import { Process, SchedulerContext } from "@/app/context/schedulerContext";
 import Image from "next/image";
+import Voice from "../voice";
 
 type IIDS = {
   [key: string]: string;
@@ -27,6 +28,7 @@ export default function WindowScreen({
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const { openedWindows, setOpenedWindows } = useContext(OpenedWindowsContext);
   const IDS: IIDS = {
+    Voice: "VOS21",
     Note: "JEM21",
     Settings: "KDC23",
     Camera: "DCP22",

@@ -5,6 +5,7 @@ import {
   OpenNote,
   OpenSpotify,
   OpenChess,
+  OpenVoice,
 } from "@/app/desktop/programOpener";
 import { FaSpotify } from "react-icons/fa6";
 import { FaCamera, FaFolder, FaChess, FaMicrophoneAlt } from "react-icons/fa";
@@ -53,6 +54,12 @@ export default function Taskbar() {
         }}
         onMouseEnter={() => setIsHoveringMic(true)}
         onMouseLeave={() => setIsHoveringMic(false)}
+        onClick={() =>
+          OpenVoice({
+            openedWindows,
+            setOpenedWindows,
+          })
+        }
       >
         <FaMicrophoneAlt size={50} color={"white"} />
       </div>
