@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { FaCamera } from "react-icons/fa";
 import { WindowProps } from "@/app/types";
+import Image from "next/image";
 
 export default function Camera({ windowIndex }: WindowProps) {
   const webcamRef = useRef<Webcam>(null);
@@ -26,49 +27,68 @@ export default function Camera({ windowIndex }: WindowProps) {
       windowIndex={windowIndex}
       icon={<FaCamera size={25} color={"yellow"} />}
     >
-      <div className="flex flex-col items-center gap-4 p-4">
+      <div className="flex flex-col items-center justify-center p-8 gap-4 w-full h-full overflow-auto mx-auto">
         {!showGallery ? (
           <>
-            <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/png"
-              className="w-full h-auto rounded-lg"
-              videoConstraints={videoConstraints}
-            />
-            <div className="flex gap-4">
-              <img
-                src="/public/revisedHoneyOS/snapPhotoButton.png"
-                alt="Capture"
-                onClick={captureImage}
-                className="w-12 h-12 cursor-pointer hover:opacity-80 transition-opacity"
+            <div className="w-auto aspect-[4/3] rounded-lg overflow-hidden border border-2 border-[#743D31]">
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                className="w-full h-full object-cover"
+                videoConstraints={videoConstraints}
               />
-              <img
-                src="/openGalleryButton.png"
+            </div>
+
+            <div className="flex gap-4 w-full justify-center px-4">
+              <Image
+                src="/revisedHoneyOS/snapPhotoButton.png"
+                alt="Capture"
+                width={56}
+                height={56}
+                onClick={captureImage}
+                className="cursor-pointer hover:opacity-80 active:scale-90 transition-all duration-150"
+              />
+              <Image
+                src="/revisedHoneyOS/openGalleryButton.png"
                 alt="Open Gallery"
+                width={56}
+                height={56}
                 onClick={() => setShowGallery(true)}
-                className="w-12 h-12 cursor-pointer hover:opacity-80 transition-opacity"
+                className="cursor-pointer hover:opacity-80 active:scale-90 transition-all duration-150"
               />
             </div>
           </>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-2 w-full max-h-[400px] overflow-y-auto">
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full overflow-y-auto rounded-lg p-2"
+              style={{ maxHeight: "500px" }}
+            >
               {capturedImages.map((img, index) => (
-                <img
+                <div
                   key={index}
-                  src={img}
-                  alt={`Captured ${index}`}
-                  className="rounded-lg w-full"
-                />
+                  className="relative w-full pb-[75%] rounded-lg overflow-hidden" 
+                >
+                  <Image
+                    src={img}
+                    alt={`Captured ${index}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                  />
+                </div>
               ))}
             </div>
-            <button
+
+            <Image
+              src="/revisedHoneyOS/backButton.png"
+              alt="Back to Camera"
+              width={48}
+              height={48}
               onClick={() => setShowGallery(false)}
-              className="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg"
-            >
-              Back to Camera
-            </button>
+              className="cursor-pointer hover:opacity-80 active:scale-90 transition-all duration-150"
+            />
           </>
         )}
       </div>
