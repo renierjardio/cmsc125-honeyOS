@@ -17,6 +17,7 @@ import { FaMicrophone } from "react-icons/fa";
 import useFont from "@/hooks/useFont";
 import { Waveform } from "../desktop/components/waveform";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
+import { appWindow } from "@tauri-apps/api/window";
 
 type SpeechRecognitionResultEvent = {
   results: SpeechRecognitionResultList;
@@ -118,12 +119,52 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     setUserSpeech(transcript);
 
     const lower = transcript.toLowerCase().trim();
-    const match = lower.match(/^honey[,]?\s*open\s+(.+?)\s*,?\s*please\.?$/);
+    const match = lower.match(
+      /^honey[,]?\s*(open|close|shut)\s+(.+?)\s*,?\s*please\.?$/
+    );
 
-    if (match && match[1]) {
-      const command = match[1].trim();
-      speak(`Opening ${command}`);
-      openProgramByName(command);
+    if (match && match[1] && match[2]) {
+      const action = match[1]; // "open" or "close"
+      const command = match[2].trim().toLowerCase();
+
+      // Handle "shut down" command
+      if (action === "shut" && command === "down") {
+        speak("Shutting down. See you soon, honey sugar plum. Goodbye, honey.");
+        setTimeout(() => {
+          appWindow.close(); // closes the Tauri window
+        }, 10500);
+        return;
+      }
+
+      if (action === "open") {
+        speak(`Opening ${command}`);
+        openProgramByName(command);
+      } else if (action === "close") {
+        const index = openedWindows.findIndex((w) =>
+          w.name.toLowerCase().includes(command)
+        );
+
+        if (index !== -1) {
+          speak(
+            `Closing for the window: ${openedWindows[index].name} with the index: ${index}`
+          );
+          setOpenedWindows((prevState) =>
+            prevState.map((window, i) =>
+              i === index
+                ? {
+                    ...window,
+                    html: null,
+                    focused: false,
+                    minimized: false,
+                    maximized: false,
+                  }
+                : window
+            )
+          );
+        } else {
+          speak(`${command} is not currently open.`);
+        }
+      }
     } else {
       speak(`Sorry, I couldn't understand: ${transcript}`);
       console.warn("Unrecognized command:", transcript);

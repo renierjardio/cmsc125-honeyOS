@@ -127,6 +127,7 @@ export default function WindowScreen({
       y: event.clientY - position.y,
     });
   };
+
   const handleMouseMove = (event: MouseEvent) => {
     if (isDragging) {
       setPosition({
