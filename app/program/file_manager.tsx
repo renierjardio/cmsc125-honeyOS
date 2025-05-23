@@ -2,6 +2,7 @@ import WindowScreen from "@/app/desktop/components/window";
 import React, { useContext, useEffect, useState } from "react";
 import useFileSystem from "@/hooks/useFileSystem";
 import NewFilePopup from "../desktop/components/file_manager_popup";
+import FileManagerItem from "@/app/desktop/components/file_manager_item";
 import { HoneyFile, WindowProps } from "@/app/types";
 import { FaFolder, FaFolderPlus } from "react-icons/fa";
 import {
@@ -16,7 +17,9 @@ import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
 import useFont from "@/hooks/useFont";
 import { FaFileCirclePlus } from "react-icons/fa6";
 import { SpeechRecognitionContext } from "@/app/context/speechRecognitionContext";
+
 export default function FileManager({ windowIndex }: WindowProps) {
+  const [history, setHistory] = useState<string[]>([]);
   const [currentDirList, setCurrentDirList] = useState<HoneyFile[]>();
   const {
     listDir,
@@ -27,6 +30,7 @@ export default function FileManager({ windowIndex }: WindowProps) {
     deleteDir,
     deleteFile,
     createFile,
+    renameFile,
     directory,
     absolutePath,
     dataDirPath,
@@ -123,7 +127,7 @@ export default function FileManager({ windowIndex }: WindowProps) {
 
   const handleEmptyFile = async (name: string) => {
     try {
-      await createFile(name + ".txt");
+      await createFile(name);
       console.log("File created successfully");
       setShowPopup(false);
       listDir().then((data) => {
@@ -163,6 +167,26 @@ export default function FileManager({ windowIndex }: WindowProps) {
     setShowOptionsDropdownForFile(null);
   };
 
+  const handleRename = async (oldName: string, newName: string) => {
+    try {
+      await renameFile(oldName, newName);
+      console.log(`Renamed ${oldName} to ${newName}`);
+      setCurrentDirList((prevFiles) =>
+        (prevFiles ?? []).map((file) =>
+          file.name === oldName
+            ? {
+                ...file,
+                name: newName,
+                created_at: new Date().toISOString(),
+              }
+            : file
+        )
+      );
+    } catch (error) {
+      console.log(`Error renaming ${oldName} to ${newName}:`, error);
+    }
+  };
+
   return (
     <WindowScreen
       name={"File Manager"}
@@ -179,87 +203,58 @@ export default function FileManager({ windowIndex }: WindowProps) {
           <div className="overflow-x-auto whitespace-nowrap">
             {honey_directory()}
           </div>
-          <div className={`p-2 w-fit h-fit flex flex-row space-x-1`}>
+          <div
+            className={`p-2 w-fit h-fit flex flex-row space-x-1 text-[12px] text-[#743D31] font-bold`}
+          >
             <button
-              className={`h-6 px-2 py-1 rounded-lg flex flex-row space-x-1 bg-yellow-500`}
+              className={`h-8 px-2 py-1 rounded-lg flex flex-row space-x-1 bg-[#F6D69A] border-2 border-[#743D31] shadow-md justify-center items-center`}
               onClick={handleAddFile}
             >
-              <FaFileCirclePlus size={15} />
-              <p className={"text-[12px]"}>Add File</p>
+              <FaFileCirclePlus size={20} color="#743D31" />
+              <p>Add File</p>
             </button>
             <button
-              className={`h-6 px-2 py-1 rounded-lg flex flex-row space-x-1 bg-yellow-500`}
+              className={`h-8 px-2 py-1 rounded-lg flex flex-row space-x-1 bg-[#F6D69A] border-2 border-[#743D31] shadow-md justify-center items-center`}
               onClick={handleAddFolder}
             >
-              <FaFolderPlus size={15} />
-              <p className={"text-[12px]"}>Add Folder</p>
+              <FaFolderPlus size={20} color="#743D31" />
+              <p>Add Folder</p>
             </button>
           </div>
         </div>
         <div className={"h-[85%] overflow-y-auto"}>
-          {currentDirList?.map((file, index) => {
-            return (
-              <div
-                key={index}
-                className="flex items-center justify-between p-1 cursor-pointer w-[47vw] text-sm"
-                onClick={
-                  file.is_dir
-                    ? () => {
-                        setHoneyDirectory(file.name);
-                      }
-                    : async () => {
-                        OpenNote(
-                          { openedWindows, setOpenedWindows },
-                          {
-                            name: file.name,
-                            content: (await readFile(file.name)).content,
-                            location: directory() + "\\" + honey_directory(),
-                          }
-                        );
-                      }
-                }
-              >
-                <div className="flex items-center space-x-4 flex-grow">
-                  {file.is_dir ? (
-                    <FolderIcon className="w-6 h-6" />
-                  ) : file.name.includes(".txt") ? (
-                    <DocumentTextIcon className="w-6 h-6" />
-                  ) : (
-                    <PhotoIcon className="w-6 h-6" />
-                  )}
-                  <span>{file.name}</span>
-                </div>
-                <div className="relative">
-                  <button
-                    className="w-6 h-6 border-none focus:outline-none"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Show or hide options dropdown
-                      handleOptionsButtonClick(index);
-                    }}
-                  >
-                    <EllipsisVerticalIcon className="w-6 h-6" />
-                  </button>
-                  {/* Delete option */}
-                  {showOptionsDropdownForFile === index && (
-                    <div className="absolute right-0 mt-2 w-36 bg-primary shadow-md rounded-lg z-10">
-                      {/* Delete option */}
-                      <button
-                        className="flex border w-full px-4 py-2 space-x-2 items-center hover:bg-gray-200 hover:text-primary focus:outline-none"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Pass the file name and type (file or directory) to the delete function
-                          handleDelete(file.name, file.is_dir);
-                        }}
-                      >
-                        <TrashIcon className="w-4 h-4" /> <span>Delete</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          <div className="flex justify-between items-center px-2 py-1 text-lg text-[#743D31] font-bold">
+            <span className="w-1/2 pl-12">Name</span>
+            <span className="w-1/2 text-right pr-24">Date Modified</span>
+          </div>
+
+          {currentDirList?.map((file, index) => (
+            <FileManagerItem
+              key={index}
+              file={file}
+              handleDelete={handleDelete}
+              handleRename={handleRename}
+              setHoneyDirectory={(folderName) => {
+                setHistory((prev) => [...prev, honey_directory()]);
+                setHoneyDirectory(folderName);
+              }}
+              openNote={
+                file.is_dir
+                  ? undefined
+                  : async (file) => {
+                      const data = await readFile(file.name);
+                      OpenNote(
+                        { openedWindows, setOpenedWindows },
+                        {
+                          name: file.name,
+                          content: data.content,
+                          location: directory() + "\\" + honey_directory(),
+                        }
+                      );
+                    }
+              }
+            />
+          ))}
         </div>
         {showPopup && (
           <NewFilePopup
@@ -268,6 +263,7 @@ export default function FileManager({ windowIndex }: WindowProps) {
             setName={setName}
             name={name}
             fileType={popupType}
+            mode="create"
           />
         )}
       </div>
