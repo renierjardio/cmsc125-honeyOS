@@ -8,6 +8,7 @@ import Camera from "@/app/program/camera";
 import { Window } from "@/app/context/openedWindowsContext";
 import Spotify from "@/app/program/spotify";
 import Chess from "@/app/program/chess";
+import Manager from "../program/schedmanager";
 
 type File = {
   name: string;
@@ -58,6 +59,17 @@ export function OpenSettings(
       1,
       <Settings windowIndex={1} />
     );
+    if (speak) speak("Opening the settings window for you.");
+  }
+}
+
+export function OpenSchedManager(
+  { openedWindows, setOpenedWindows }: OpenedWindowsProps,
+  speak?: (text: string) => void
+) {
+  if (openedWindows[1].html) toggleMinimize(openedWindows, setOpenedWindows, 1);
+  else {
+    openWindow(openedWindows, setOpenedWindows, 1, <Manager windowIndex={1} />);
     if (speak) speak("Opening the settings window for you.");
   }
 }

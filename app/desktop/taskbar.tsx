@@ -6,6 +6,7 @@ import {
   OpenSpotify,
   OpenChess,
   OpenVoice,
+  OpenSchedManager,
 } from "@/app/desktop/programOpener";
 import { FaSpotify } from "react-icons/fa6";
 import { FaCamera, FaFolder, FaChess, FaMicrophoneAlt } from "react-icons/fa";
@@ -127,6 +128,7 @@ export default function Taskbar() {
         }}
         onMouseEnter={() => setIsHoveringTask(true)}
         onMouseLeave={() => setIsHoveringTask(false)}
+        onClick={() => OpenSchedManager({ openedWindows, setOpenedWindows })}
       >
         <Icon path={mdiCalendarClock} size={2.5} color={"white"} />
       </div>
