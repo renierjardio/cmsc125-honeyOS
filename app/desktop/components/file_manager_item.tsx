@@ -14,7 +14,7 @@ interface FileManagerItemProps {
   handleDelete: (fileName: string, isDirectory: boolean) => void;
   handleRename: (oldName: string, newName: string) => void;
   setHoneyDirectory: (path: string) => void;
-  openNote?: (file: HoneyFile) => void;
+  onOpenFile?: (file: HoneyFile) => void;
 }
 
 const FileManagerItem: React.FC<FileManagerItemProps> = ({
@@ -22,6 +22,7 @@ const FileManagerItem: React.FC<FileManagerItemProps> = ({
   handleDelete,
   handleRename,
   setHoneyDirectory,
+  onOpenFile,
 }) => {
   const [isRenamePopupOpen, setIsRenamePopupOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -42,7 +43,14 @@ const FileManagerItem: React.FC<FileManagerItemProps> = ({
     <>
       <div
         className="flex items-center justify-between mb-2 cursor-pointer w-[47vw] h-9 text-sm bg-[#F6D69A] border-4 border-[#743D31] rounded-lg"
-        onClick={file.is_dir ? () => setHoneyDirectory(file.name) : () => {}}
+        onClick={() => {
+          if (file.is_dir) {
+            setHoneyDirectory(file.name);
+          } else if (onOpenFile) {
+            console.log(`FileManagerItem clicked for file: ${file.name}`); // debug log
+            onOpenFile(file);
+          }
+        }}
       >
         <div className="flex items-center space-x-4 pl-4">
           {file.is_dir ? (
@@ -55,7 +63,7 @@ const FileManagerItem: React.FC<FileManagerItemProps> = ({
           <span className="text-[#743D31] font-semibold">{file.name}</span>
         </div>
 
-        <div className="absolute right-32 text-[#743D31] text-xs font-medium">
+        <div className="ml-auto pr-8 text-[#743D31] text-xs font-medium">
           {new Date(file.created_at).toLocaleString()}
         </div>
 
@@ -99,12 +107,15 @@ const FileManagerItem: React.FC<FileManagerItemProps> = ({
             </p>
             <div className="flex justify-end mt-4">
               <button
-                className="p-2 border mr-2"
+                className="p-2 border rounded-lg mr-2 hover:bg-gray-200 hover:text-black ease-in-out duration-300"
                 onClick={() => setIsDeleteConfirmOpen(false)}
               >
                 Cancel
               </button>
-              <button className="p-2 border" onClick={handleDeleteConfirm}>
+              <button
+                className="p-2 border rounded-lg hover:bg-gray-200 hover:text-black ease-in-out duration-300"
+                onClick={handleDeleteConfirm}
+              >
                 Delete
               </button>
             </div>
