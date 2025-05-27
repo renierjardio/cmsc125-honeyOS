@@ -41,7 +41,7 @@ export default function Manager({ windowIndex }: WindowProps) {
 
   return (
     <WindowScreen
-      name="Scheduler & Page Replacement"
+      name="Scheduler"
       windowIndex={windowIndex}
       icon={<Icon path={mdiCalendarClock} size={1} color={"yellow"} />}
     >
@@ -49,7 +49,7 @@ export default function Manager({ windowIndex }: WindowProps) {
         className={`relative text-[#743D31] mx-[0.5%] w-[99.1%] h-full justify-content-center overflow-hidden`}
       >
         <div className="flex flex-row pt-[4vh] pl-[3vh] pb-[1vh] space-x-3 items-center">
-          <div className="text-4xl font-bold">TASK MANAGER</div>
+          <div className="text-4xl font-bold">TASK SCHEDULER</div>
           <div className="flex flex-col">
             <div className="text-xs font-semibold mb-[-5px]">Running Time:</div>
             <div className="text-lg">{arrivalTime.toFixed(2)}</div>

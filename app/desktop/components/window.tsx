@@ -5,7 +5,7 @@ import useFont from "@/hooks/useFont";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
 import { Process, SchedulerContext } from "@/app/context/schedulerContext";
 import Image from "next/image";
-import Voice from "../voice";
+import Voice from "../";
 
 type IIDS = {
   [key: string]: string;

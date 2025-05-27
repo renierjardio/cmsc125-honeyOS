@@ -7,9 +7,16 @@ import {
   OpenChess,
   OpenVoice,
   OpenSchedManager,
+  OpenMemoryManager,
 } from "@/app/desktop/programOpener";
 import { FaSpotify } from "react-icons/fa6";
-import { FaCamera, FaFolder, FaChess, FaMicrophoneAlt } from "react-icons/fa";
+import {
+  FaCamera,
+  FaFolder,
+  FaChess,
+  FaMicrophoneAlt,
+  FaDesktop,
+} from "react-icons/fa";
 import Icon from "@mdi/react";
 import { mdiNoteText, mdiCalendarClock } from "@mdi/js";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
@@ -25,6 +32,7 @@ export default function Taskbar() {
   const [isHoveringNote, setIsHoveringNote] = useState(false);
   const [isHoveringFolder, setIsHoveringFolder] = useState(false);
   const [isHoveringTask, setIsHoveringTask] = useState(false);
+  const [isHoveringMemory, setIsHoveringMemory] = useState(false);
   const [isHoveringCamera, setIsHoveringCamera] = useState(false);
   const [isHoveringSpotify, setIsHoveringSpotify] = useState(false);
   const [isHoveringChess, setIsHoveringChess] = useState(false);
@@ -131,6 +139,23 @@ export default function Taskbar() {
         onClick={() => OpenSchedManager({ openedWindows, setOpenedWindows })}
       >
         <Icon path={mdiCalendarClock} size={2.5} color={"white"} />
+      </div>
+
+      <div
+        className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
+        style={{
+          backgroundImage: `url(${
+            isHoveringMemory
+              ? "/revisedHoneyOS/flower-hover.png"
+              : "/revisedHoneyOS/flower-normal.png"
+          })`,
+          backgroundSize: "contain",
+        }}
+        onMouseEnter={() => setIsHoveringMemory(true)}
+        onMouseLeave={() => setIsHoveringMemory(false)}
+        onClick={() => OpenMemoryManager({ openedWindows, setOpenedWindows })}
+      >
+        <FaDesktop size={50} color={"white"} />
       </div>
 
       <div

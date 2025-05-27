@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Terminal from "./terminal";
-import Manager from "./manager";
-import Voice from "./voice";
+import Manager from "../program/sched_manager";
+import Voice from "./";
 import Taskbar from "./taskbar";
 import React, { useContext, useEffect } from "react";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";

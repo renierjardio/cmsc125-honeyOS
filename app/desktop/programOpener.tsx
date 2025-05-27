@@ -2,33 +2,19 @@ import Note from "@/app/program/note";
 import React from "react";
 import { OpenedWindowsProps } from "@/app/types";
 import Voice_Program from "../program/voice_program";
-import Settings from "@/app/program/settings";
 import FileManager from "@/app/program/file_manager";
 import Camera from "@/app/program/camera";
 import { Window } from "@/app/context/openedWindowsContext";
 import Spotify from "@/app/program/spotify";
 import Chess from "@/app/program/chess";
-import Manager from "../program/schedmanager";
+import Manager from "../program/sched_manager";
+import MemoryManager from "../program/memory_manager";
 
 type File = {
   name: string;
   content: string;
   location: string;
 };
-
-export function OpenVoice({
-  openedWindows,
-  setOpenedWindows,
-}: OpenedWindowsProps) {
-  if (openedWindows[6].html) toggleMinimize(openedWindows, setOpenedWindows, 6);
-  else
-    openWindow(
-      openedWindows,
-      setOpenedWindows,
-      6,
-      <Voice_Program windowIndex={6} />
-    );
-}
 
 export function OpenNote(
   { openedWindows, setOpenedWindows }: OpenedWindowsProps,
@@ -47,71 +33,86 @@ export function OpenNote(
     );
 }
 
-export function OpenSettings(
-  { openedWindows, setOpenedWindows }: OpenedWindowsProps,
-  speak?: (text: string) => void
-) {
+export function OpenVoice({
+  openedWindows,
+  setOpenedWindows,
+}: OpenedWindowsProps) {
   if (openedWindows[1].html) toggleMinimize(openedWindows, setOpenedWindows, 1);
-  else {
+  else
     openWindow(
       openedWindows,
       setOpenedWindows,
       1,
-      <Settings windowIndex={1} />
+      <Voice_Program windowIndex={1} />
     );
-    if (speak) speak("Opening the settings window for you.");
-  }
 }
 
 export function OpenSchedManager(
   { openedWindows, setOpenedWindows }: OpenedWindowsProps,
   speak?: (text: string) => void
 ) {
-  if (openedWindows[1].html) toggleMinimize(openedWindows, setOpenedWindows, 1);
+  if (openedWindows[2].html) toggleMinimize(openedWindows, setOpenedWindows, 2);
   else {
-    openWindow(openedWindows, setOpenedWindows, 1, <Manager windowIndex={1} />);
-    if (speak) speak("Opening the settings window for you.");
+    openWindow(openedWindows, setOpenedWindows, 2, <Manager windowIndex={2} />);
+    if (speak) speak("Opening the manager window for you.");
   }
+}
+
+export function OpenMemoryManager(
+  { openedWindows, setOpenedWindows }: OpenedWindowsProps,
+  speak?: (text: string) => void
+) {
+  if (openedWindows[3].html) toggleMinimize(openedWindows, setOpenedWindows, 3);
+  else {
+    openWindow(
+      openedWindows,
+      setOpenedWindows,
+      3,
+      <MemoryManager windowIndex={3} />
+    );
+    if (speak) speak("Opening the memory manager window for you.");
+  }
+}
+
+export function OpenFileManager({
+  openedWindows,
+  setOpenedWindows,
+}: OpenedWindowsProps) {
+  if (openedWindows[4].html) toggleMinimize(openedWindows, setOpenedWindows, 4);
+  else
+    openWindow(
+      openedWindows,
+      setOpenedWindows,
+      4,
+      <FileManager windowIndex={4} />
+    );
 }
 
 export function OpenCamera({
   openedWindows,
   setOpenedWindows,
 }: OpenedWindowsProps) {
-  if (openedWindows[2].html) toggleMinimize(openedWindows, setOpenedWindows, 2);
+  if (openedWindows[5].html) toggleMinimize(openedWindows, setOpenedWindows, 5);
   else
-    openWindow(openedWindows, setOpenedWindows, 2, <Camera windowIndex={2} />);
-}
-export function OpenFileManager({
-  openedWindows,
-  setOpenedWindows,
-}: OpenedWindowsProps) {
-  if (openedWindows[3].html) toggleMinimize(openedWindows, setOpenedWindows, 3);
-  else
-    openWindow(
-      openedWindows,
-      setOpenedWindows,
-      3,
-      <FileManager windowIndex={3} />
-    );
+    openWindow(openedWindows, setOpenedWindows, 5, <Camera windowIndex={5} />);
 }
 
 export function OpenSpotify({
   openedWindows,
   setOpenedWindows,
 }: OpenedWindowsProps) {
-  if (openedWindows[4].html) toggleMinimize(openedWindows, setOpenedWindows, 4);
+  if (openedWindows[6].html) toggleMinimize(openedWindows, setOpenedWindows, 6);
   else
-    openWindow(openedWindows, setOpenedWindows, 4, <Spotify windowIndex={4} />);
+    openWindow(openedWindows, setOpenedWindows, 6, <Spotify windowIndex={6} />);
 }
 
 export function OpenChess({
   openedWindows,
   setOpenedWindows,
 }: OpenedWindowsProps) {
-  if (openedWindows[5].html) toggleMinimize(openedWindows, setOpenedWindows, 5);
+  if (openedWindows[7].html) toggleMinimize(openedWindows, setOpenedWindows, 7);
   else
-    openWindow(openedWindows, setOpenedWindows, 5, <Chess windowIndex={5} />);
+    openWindow(openedWindows, setOpenedWindows, 7, <Chess windowIndex={7} />);
 }
 
 const openWindow = (
