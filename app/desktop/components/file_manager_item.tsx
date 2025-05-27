@@ -14,7 +14,7 @@ interface FileManagerItemProps {
   handleDelete: (fileName: string, isDirectory: boolean) => void;
   handleRename: (oldName: string, newName: string) => void;
   setHoneyDirectory: (path: string) => void;
-  openNote?: (file: HoneyFile) => void;
+  onOpenFile?: (file: HoneyFile) => void;
 }
 
 const FileManagerItem: React.FC<FileManagerItemProps> = ({
@@ -22,6 +22,7 @@ const FileManagerItem: React.FC<FileManagerItemProps> = ({
   handleDelete,
   handleRename,
   setHoneyDirectory,
+  onOpenFile,
 }) => {
   const [isRenamePopupOpen, setIsRenamePopupOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -42,7 +43,14 @@ const FileManagerItem: React.FC<FileManagerItemProps> = ({
     <>
       <div
         className="flex items-center justify-between mb-2 cursor-pointer w-[47vw] h-9 text-sm bg-[#F6D69A] border-4 border-[#743D31] rounded-lg"
-        onClick={file.is_dir ? () => setHoneyDirectory(file.name) : () => {}}
+        onClick={() => {
+          if (file.is_dir) {
+            setHoneyDirectory(file.name);
+          } else if (onOpenFile) {
+            console.log(`FileManagerItem clicked for file: ${file.name}`); // debug log
+            onOpenFile(file);
+          }
+        }}
       >
         <div className="flex items-center space-x-4 pl-4">
           {file.is_dir ? (

@@ -77,6 +77,13 @@ export default function OpenedWindowsProvider({
       focused: false,
       name: "chess",
     },
+    {
+      html: null,
+      minimized: false,
+      maximized: false,
+      focused: false,
+      name: "imageViewer",
+    },
   ]);
   const [numberOfOpenedWindows, setNumberOfOpenedWindows] = useState(0);
 
