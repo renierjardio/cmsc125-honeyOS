@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { FileProps, HoneyFile } from "@/app/types";
 import { invoke } from "@tauri-apps/api/tauri";
+import { readBinaryFile } from "@tauri-apps/api/fs";
 
 export default function useFileSystem() {
   const [dataDirPath, setDataDirPath] = useState<string[]>([]);
@@ -77,13 +78,30 @@ export default function useFileSystem() {
   };
 
   const readFile = async (
-    path: string
-  ): Promise<{ status: boolean; content: string }> => {
+    fileName: string
+  ): Promise<{ status: boolean; content: string; isBinary?: boolean }> => {
     try {
-      const content = await readTextFile(
-        "honeyos\\" + honey_directory() + "\\" + path,
-        { dir: BaseDirectory.Data }
-      );
+      const ext = fileName.split(".").pop()?.toLowerCase();
+      const filePath = "honeyos\\" + honey_directory() + "\\" + fileName;
+
+      // Read image files as binary
+      if (["png", "jpg", "jpeg", "gif"].includes(ext || "")) {
+        const binary = await readBinaryFile(filePath, {
+          dir: BaseDirectory.Data,
+        });
+        const base64 = Buffer.from(binary).toString("base64");
+        const mime = `image/${ext === "jpg" ? "jpeg" : ext}`;
+        return {
+          status: true,
+          content: `data:${mime};base64,${base64}`,
+          isBinary: true,
+        };
+      }
+
+      // Read text files as UTF-8
+      const content = await readTextFile(filePath, {
+        dir: BaseDirectory.Data,
+      });
       return {
         status: true,
         content: content,
@@ -91,7 +109,7 @@ export default function useFileSystem() {
     } catch (error) {
       return {
         status: false,
-        content: error as string,
+        content: String(error),
       };
     }
   };

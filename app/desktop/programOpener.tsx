@@ -9,6 +9,7 @@ import Spotify from "@/app/program/spotify";
 import Chess from "@/app/program/chess";
 import Manager from "../program/sched_manager";
 import MemoryManager from "../program/memory_manager";
+import ImageViewerWindow from "@/app/desktop/components/image_viewer";
 
 type File = {
   name: string;
@@ -115,6 +116,59 @@ export function OpenChess({
     openWindow(openedWindows, setOpenedWindows, 7, <Chess windowIndex={7} />);
 }
 
+export function OpenImage(
+  { openedWindows, setOpenedWindows }: OpenedWindowsProps,
+  file: { name: string; content: Uint8Array | string; location: string }
+) {
+  const IMAGE_INDEX = 8;
+
+  let imageSrc: string;
+
+  if (
+    typeof file.content === "string" &&
+    file.content.startsWith("data:image")
+  ) {
+    imageSrc = file.content;
+  } else if (file.content instanceof Uint8Array) {
+    const blob = new Blob([file.content], { type: "image/jpeg" });
+    imageSrc = URL.createObjectURL(blob);
+  } else {
+    imageSrc = "";
+  }
+
+  if (openedWindows[IMAGE_INDEX]?.html) {
+    const existingFileName = openedWindows[IMAGE_INDEX]?.html?.props?.name;
+    if (existingFileName === file.name) {
+      toggleMinimize(openedWindows, setOpenedWindows, IMAGE_INDEX);
+    } else {
+      closeWindow(openedWindows, setOpenedWindows, IMAGE_INDEX);
+      openWindow(
+        openedWindows,
+        setOpenedWindows,
+        IMAGE_INDEX,
+        <ImageViewerWindow
+          windowIndex={IMAGE_INDEX}
+          imageSrc={imageSrc}
+          name={file.name}
+          location={file.location}
+        />
+      );
+    }
+  } else {
+    openWindow(
+      openedWindows,
+      setOpenedWindows,
+      IMAGE_INDEX,
+      <ImageViewerWindow
+        windowIndex={IMAGE_INDEX}
+        imageSrc={imageSrc}
+        name={file.name}
+        location={file.location}
+      />
+    );
+  }
+}
+
 const openWindow = (
   openedWindows: Window[],
   setOpenedWindows: React.Dispatch<React.SetStateAction<Window[]>>,
@@ -122,8 +176,21 @@ const openWindow = (
   html: React.JSX.Element
 ) => {
   setOpenedWindows((prevState) => {
-    prevState[index].html = html;
-    return [...prevState];
+    const updated = [...prevState];
+    if (!updated[index]) {
+      // Create a new window if it doesn't exist
+      updated[index] = {
+        html,
+        minimized: false,
+        maximized: false,
+        focused: true,
+        name: html.type.name || `Window${index}`,
+      };
+    } else {
+      // Update existing window's html
+      updated[index] = { ...updated[index], html };
+    }
+    return updated;
   });
   SetFocus(index, setOpenedWindows);
 };
