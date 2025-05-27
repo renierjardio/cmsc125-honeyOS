@@ -55,7 +55,7 @@ const FileManagerItem: React.FC<FileManagerItemProps> = ({
           <span className="text-[#743D31] font-semibold">{file.name}</span>
         </div>
 
-        <div className="absolute right-32 text-[#743D31] text-xs font-medium">
+        <div className="ml-auto pr-8 text-[#743D31] text-xs font-medium">
           {new Date(file.created_at).toLocaleString()}
         </div>
 
