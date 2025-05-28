@@ -12,6 +12,7 @@ const colorMap = {
   Chess: "#CF4F44",
   Scheduler: "#8E44AD",
   "Page Replacement": "#3498DB",
+  "Voice Program": "#2ECC71",
 };
 
 const frameSize = 20;
