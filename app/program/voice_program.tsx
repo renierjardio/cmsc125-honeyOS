@@ -6,6 +6,9 @@ import {
   OpenCamera,
   OpenFileManager,
   OpenNote,
+  OpenSchedManager,
+  OpenMemoryManager,
+  closeWindow,
 } from "@/app/desktop/programOpener";
 
 import WindowScreen from "../desktop/components/window";
@@ -28,6 +31,32 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
   const [speaking, setSpeaking] = useState(false);
   const [listening, setListening] = useState(false);
   const { openedWindows, setOpenedWindows } = useContext(OpenedWindowsContext);
+
+  const normalize = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "")
+      .trim();
+
+  const programAliases: Record<string, string[]> = {
+    note: ["note", "notes", "notepad", "text editor"],
+    spotify: ["spotify", "music"],
+    chess: ["chess", "game"],
+    camera: ["camera", "cam"],
+    "file manager": ["filemanager", "files", "explorer"],
+    "scheduler manager": ["schedule", "scheduler", "scheduler manager"],
+    "memory manager": ["memory", "ram", "memory manager"],
+  };
+
+  const resolveProgramKey = (input: string): string | null => {
+    const normalizedInput = normalize(input);
+    for (const [key, aliases] of Object.entries(programAliases)) {
+      if (aliases.some((alias) => normalize(alias) === normalizedInput)) {
+        return key;
+      }
+    }
+    return null;
+  };
 
   const speak = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -90,9 +119,14 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     }, 100);
   };
 
-  const openProgramByName = (program: string) => {
-    const prog = program.toLowerCase();
-    switch (prog) {
+  const openProgramByName = (input: string) => {
+    const resolved = resolveProgramKey(input);
+    if (!resolved) {
+      speak(`Sorry, I don't know how to open ${input}.`);
+      return;
+    }
+
+    switch (resolved) {
       case "spotify":
         OpenSpotify({ openedWindows, setOpenedWindows });
         break;
@@ -105,12 +139,17 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
       case "file manager":
         OpenFileManager({ openedWindows, setOpenedWindows });
         break;
-      case "notes":
       case "note":
         OpenNote({ openedWindows, setOpenedWindows });
         break;
+      case "scheduler manager":
+        OpenSchedManager({ openedWindows, setOpenedWindows });
+        break;
+      case "memory manager":
+        OpenMemoryManager({ openedWindows, setOpenedWindows });
+        break;
       default:
-        speak(`Sorry, I don't know how to open ${program}.`);
+        speak(`Sorry, I don't know how to open ${input}.`);
     }
   };
 
@@ -123,15 +162,20 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     );
 
     if (match && match[1] && match[2]) {
-      const action = match[1]; // "open" or "close"
+      const action = match[1];
       const command = match[2].trim().toLowerCase();
 
-      // Handle "shut down" command
       if (action === "shut" && command === "down") {
         speak("Shutting down. See you soon, honey sugar plum. Goodbye, honey.");
         setTimeout(() => {
-          appWindow.close(); // closes the Tauri window
+          appWindow.close();
         }, 10500);
+        return;
+      }
+
+      const resolved = resolveProgramKey(command);
+      if (!resolved) {
+        speak(`I couldn't recognize the program: ${command}`);
         return;
       }
 
@@ -139,27 +183,13 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
         speak(`Opening ${command}`);
         openProgramByName(command);
       } else if (action === "close") {
-        const index = openedWindows.findIndex((w) =>
-          w.name.toLowerCase().includes(command)
+        const index = openedWindows.findIndex(
+          (w) => normalize(w.name || "") === normalize(resolved)
         );
 
         if (index !== -1) {
-          speak(
-            `Closing for the window: ${openedWindows[index].name} with the index: ${index}`
-          );
-          setOpenedWindows((prevState) =>
-            prevState.map((window, i) =>
-              i === index
-                ? {
-                    ...window,
-                    html: null,
-                    focused: false,
-                    minimized: false,
-                    maximized: false,
-                  }
-                : window
-            )
-          );
+          speak(`Closing the ${openedWindows[index].name} window.`);
+          closeWindow(openedWindows, setOpenedWindows, index);
         } else {
           speak(`${command} is not currently open.`);
         }
