@@ -14,6 +14,8 @@ const colorMap = {
   "Page Replacement": "#3498DB",
 };
 
+const frameSize = 20;
+
 export default function MemoryManager({ windowIndex }: WindowProps) {
   const { readyProcesses, waitProcesses } = useContext(SchedulerContext);
 
@@ -21,91 +23,124 @@ export default function MemoryManager({ windowIndex }: WindowProps) {
   const [history, setHistory] = useState<String[]>([]);
   const [memoryMap, setMemoryMap] = useState<String[]>(new Array(20).fill(""));
   const [diskMap, setDiskMap] = useState<String[]>([]);
+  const [pageSequence, setPageSequence] = useState<string[]>([]);
+  const [stats, setStats] = useState({ hits: 0, faults: 0, rate: 0 });
+  const [selectedAlgo, setSelectedAlgo] = useState<"FIFO" | "LRU" | "OPT" | "">(
+    ""
+  );
 
   useEffect(() => {
-    setAllProcesses([...readyProcesses, ...waitProcesses]);
+    const processes = [...readyProcesses, ...waitProcesses];
+    setAllProcesses(processes);
+
+    // Generate a new random sequence
+    const generated: string[] = [];
+    processes.forEach((p) => {
+      const count = Math.ceil(p.memory / 50000);
+      for (let i = 0; i < count; i++) {
+        generated.push(p.name.toString());
+      }
+    });
+
+    // Shuffle page sequence
+    for (let i = generated.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [generated[i], generated[j]] = [generated[j], generated[i]];
+    }
+
+    setPageSequence(generated);
   }, [readyProcesses, waitProcesses]);
 
-  // Update LRU History
+  // Automatically simulate on page sequence update
   useEffect(() => {
-    const activeProcessNames = new Set(
-      [...readyProcesses, ...waitProcesses].map((p) => p.name)
-    );
+    if (selectedAlgo && pageSequence.length > 0) {
+      simulateAlgorithm(selectedAlgo);
+    } else if (pageSequence.length > 0 && !selectedAlgo) {
+      // Default to FIFO on first run
+      setSelectedAlgo("FIFO");
+      simulateAlgorithm("FIFO");
+    }
+  }, [pageSequence]);
 
-    readyProcesses.forEach((process: Process) => {
-      if (process.status === 2 && process.burstTime > 0) {
+  // LRU history tracking
+  useEffect(() => {
+    const activeProcessNames = new Set(allProcesses.map((p) => p.name));
+    readyProcesses.forEach((p) => {
+      if (p.status === 2 && p.burstTime > 0) {
         setHistory((prev) => {
-          const filtered = prev.filter((name) => name !== process.name);
-          return [...filtered, process.name]; // Move to end (most recently used)
+          const filtered = prev.filter((n) => n !== p.name);
+          return [...filtered, p.name];
         });
       }
     });
 
-    setHistory((prev) => prev.filter((name) => activeProcessNames.has(name)));
+    setHistory((prev) => prev.filter((n) => activeProcessNames.has(n)));
   }, [allProcesses]);
 
-  // Page Allocation & LRU Page Replacement
-  useEffect(() => {
-    let updatedMemoryMap = [...memoryMap];
-    let updatedDiskMap = [...diskMap];
+  const simulateAlgorithm = (algo: "FIFO" | "LRU" | "OPT") => {
+    const frames: string[] = [];
+    const queue: string[] = [];
+    const recent: string[] = [];
+    let faults = 0;
+    let hits = 0;
 
-    // Cleanup: Remove pages of terminated processes
-    updatedMemoryMap = updatedMemoryMap.map((page) =>
-      allProcesses.some((p) => p.name === page) ? page : ""
-    );
-    updatedDiskMap = updatedDiskMap.filter((name) =>
-      allProcesses.some((p) => p.name === name)
-    );
+    const futureRefs = [...pageSequence];
 
-    allProcesses.forEach((process: Process) => {
-      const requiredPages = Math.ceil(process.memory / 50000);
-      const currentInRAM = updatedMemoryMap.filter(
-        (p) => p === process.name
-      ).length;
-      let pagesNeeded = requiredPages - currentInRAM;
+    for (let i = 0; i < pageSequence.length; i++) {
+      const page = pageSequence[i];
 
-      // First pass: Load into empty pages
-      for (let i = 0; i < updatedMemoryMap.length && pagesNeeded > 0; i++) {
-        if (updatedMemoryMap[i] === "") {
-          updatedMemoryMap[i] = process.name;
-          pagesNeeded--;
+      if (frames.includes(page)) {
+        hits++;
+        if (algo === "LRU") {
+          const index = recent.indexOf(page);
+          if (index !== -1) recent.splice(index, 1);
+          recent.push(page);
         }
+        continue;
       }
 
-      // Second pass: LRU Replacement if still needed and RUNNING
-      if (pagesNeeded > 0 && process.status === 2 && process.burstTime > 0) {
-        for (let i = 0; i < history.length && pagesNeeded > 0; i++) {
-          const oldProcess = history[i];
-          if (oldProcess === process.name) continue; // Don't replace own pages
+      faults++;
 
-          for (let j = 0; j < updatedMemoryMap.length && pagesNeeded > 0; j++) {
-            if (updatedMemoryMap[j] === oldProcess) {
-              updatedMemoryMap[j] = process.name;
-              updatedDiskMap.push(oldProcess);
-              pagesNeeded--;
-            }
-          }
+      if (frames.length < frameSize) {
+        frames.push(page);
+      } else {
+        let removeIndex = 0;
+        if (algo === "FIFO") {
+          removeIndex = 0;
+        } else if (algo === "LRU") {
+          removeIndex = frames.indexOf(recent.shift()!);
+        } else if (algo === "OPT") {
+          const future = futureRefs.slice(i + 1);
+          const indices = frames.map((p) => {
+            const idx = future.indexOf(p);
+            return idx === -1 ? Number.POSITIVE_INFINITY : idx;
+          });
+          removeIndex = indices.indexOf(Math.max(...indices));
         }
+        frames.splice(removeIndex, 1);
+        frames.push(page);
       }
 
-      // If still not in memory, push to disk
-      const currentOnDisk = updatedDiskMap.filter(
-        (name) => name === process.name
-      ).length;
-      for (let i = 0; i < pagesNeeded - currentOnDisk; i++) {
-        updatedDiskMap.push(process.name);
+      if (algo === "FIFO") {
+        queue.push(page);
+        if (queue.length > frameSize) queue.shift();
       }
 
-      // Remove duplicates and ensure no unnecessary disk copies
-      if (process.status === 2 && process.burstTime > 0) {
-        updatedDiskMap = updatedDiskMap.filter((name) => name !== process.name);
+      if (algo === "LRU") {
+        recent.push(page);
       }
-    });
+    }
 
-    // Final clean-up and state update
-    setMemoryMap(updatedMemoryMap);
-    setDiskMap(updatedDiskMap.filter((name) => name !== ""));
-  }, [allProcesses, history]);
+    const hitRate = ((hits / pageSequence.length) * 100).toFixed(2);
+    setMemoryMap([...frames, ...new Array(frameSize - frames.length).fill("")]);
+    setDiskMap(
+      pageSequence
+        .filter((p) => !frames.includes(p))
+        .filter((v, i, a) => a.indexOf(v) === i)
+    );
+    setStats({ hits, faults, rate: parseFloat(hitRate) });
+    setSelectedAlgo(algo);
+  };
 
   return (
     <WindowScreen
@@ -113,20 +148,39 @@ export default function MemoryManager({ windowIndex }: WindowProps) {
       windowIndex={windowIndex}
       icon={<FaDesktop size={25} color={"yellow"} />}
     >
-      <div className="relative text-[#743D31] absolute w-full h-full flex flex-col pl-4">
-        <div className="text-4xl font-extrabold pt-6">
+      <div className="relative text-[#743D31] absolute w-full h-full flex flex-col pl-4 pt-8">
+        <div className="text-4xl font-extrabold pl-4">
           VIRTUAL MEMORY MANAGEMENT
         </div>
 
-        <div className="text-xl font-semibold pt-2 pb-4">
-          HISTORY:{" "}
-          <span className="text-sm font-normal text-[#2C3E50]">
-            {history.join(" → ")}
-          </span>
+        <div className="flex flex-row space-x-3 mb-4 ml-5">
+          <div className="text-lg font-semibold pt-2 pb-2">
+            Select Algorithm:
+          </div>
+          <div className="flex space-x-4 items-center">
+            {["FIFO", "LRU", "OPT"].map((algo) => (
+              <button
+                key={algo}
+                onClick={() => simulateAlgorithm(algo as any)}
+                className={`px-2 rounded-sm border-2 border-[#743D31] shadow-md text-[#743D31] font-semibold ${
+                  selectedAlgo === algo ? "bg-yellow-300" : "bg-[#F6D69A]"
+                }`}
+              >
+                {algo}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="text-md pb-2">
+          <strong>Selected:</strong> {selectedAlgo || "None"} <br />
+          <strong>Page Faults:</strong> {stats.faults} &nbsp;
+          <strong>Hits:</strong> {stats.hits} &nbsp;
+          <strong>Hit Rate:</strong> {stats.rate}%
         </div>
 
         <div className="text-xl font-semibold py-2">RAM:</div>
-        <div className="flex pb-6">
+        <div className="flex pb-2">
           {memoryMap.map((processName, index) => (
             <div
               key={index}
