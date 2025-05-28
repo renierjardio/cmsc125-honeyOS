@@ -3,7 +3,6 @@
 import {
   OpenSpotify,
   OpenChess,
-  OpenSettings,
   OpenCamera,
   OpenFileManager,
   OpenNote,
