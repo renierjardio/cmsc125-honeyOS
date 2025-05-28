@@ -17,34 +17,54 @@ type File = {
   location: string;
 };
 
-export function OpenNote(
-  { openedWindows, setOpenedWindows }: OpenedWindowsProps,
-  file?: File
-) {
-  if (openedWindows[0].html) {
-    if (openedWindows[0].html?.props.file.name === file?.name)
-      toggleMinimize(openedWindows, setOpenedWindows, 0);
-    else closeWindow(openedWindows, setOpenedWindows, 0);
-  } else
-    openWindow(
-      openedWindows,
-      setOpenedWindows,
-      0,
-      <Note windowIndex={0} file={file} />
-    );
-}
-
 export function OpenVoice({
   openedWindows,
   setOpenedWindows,
 }: OpenedWindowsProps) {
-  if (openedWindows[1].html) toggleMinimize(openedWindows, setOpenedWindows, 1);
+  if (openedWindows[0]?.html)
+    toggleMinimize(openedWindows, setOpenedWindows, 0);
   else
     openWindow(
       openedWindows,
       setOpenedWindows,
+      0,
+      <Voice_Program windowIndex={0} />,
+      "Voice Program"
+    );
+}
+
+export function OpenNote(
+  { openedWindows, setOpenedWindows }: OpenedWindowsProps,
+  file?: File
+) {
+  if (openedWindows[1]?.html) {
+    if (openedWindows[1].html?.props.file?.name === file?.name)
+      toggleMinimize(openedWindows, setOpenedWindows, 1);
+    else closeWindow(openedWindows, setOpenedWindows, 1);
+  } else {
+    openWindow(
+      openedWindows,
+      setOpenedWindows,
       1,
-      <Voice_Program windowIndex={1} />
+      <Note windowIndex={1} file={file} />,
+      "Note"
+    );
+  }
+}
+
+export function OpenFileManager({
+  openedWindows,
+  setOpenedWindows,
+}: OpenedWindowsProps) {
+  if (openedWindows[2]?.html)
+    toggleMinimize(openedWindows, setOpenedWindows, 2);
+  else
+    openWindow(
+      openedWindows,
+      setOpenedWindows,
+      2,
+      <FileManager windowIndex={2} />,
+      "File Manager"
     );
 }
 
@@ -52,9 +72,16 @@ export function OpenSchedManager(
   { openedWindows, setOpenedWindows }: OpenedWindowsProps,
   speak?: (text: string) => void
 ) {
-  if (openedWindows[2].html) toggleMinimize(openedWindows, setOpenedWindows, 2);
+  if (openedWindows[3]?.html)
+    toggleMinimize(openedWindows, setOpenedWindows, 3);
   else {
-    openWindow(openedWindows, setOpenedWindows, 2, <Manager windowIndex={2} />);
+    openWindow(
+      openedWindows,
+      setOpenedWindows,
+      3,
+      <Manager windowIndex={3} />,
+      "Scheduler Manager"
+    );
     if (speak) speak("Opening the manager window for you.");
   }
 }
@@ -63,57 +90,66 @@ export function OpenMemoryManager(
   { openedWindows, setOpenedWindows }: OpenedWindowsProps,
   speak?: (text: string) => void
 ) {
-  if (openedWindows[3].html) toggleMinimize(openedWindows, setOpenedWindows, 3);
+  if (openedWindows[4]?.html)
+    toggleMinimize(openedWindows, setOpenedWindows, 4);
   else {
     openWindow(
       openedWindows,
       setOpenedWindows,
-      3,
-      <MemoryManager windowIndex={3} />
+      4,
+      <MemoryManager windowIndex={4} />,
+      "Memory Manager"
     );
     if (speak) speak("Opening the memory manager window for you.");
   }
-}
-
-export function OpenFileManager({
-  openedWindows,
-  setOpenedWindows,
-}: OpenedWindowsProps) {
-  if (openedWindows[4].html) toggleMinimize(openedWindows, setOpenedWindows, 4);
-  else
-    openWindow(
-      openedWindows,
-      setOpenedWindows,
-      4,
-      <FileManager windowIndex={4} />
-    );
 }
 
 export function OpenCamera({
   openedWindows,
   setOpenedWindows,
 }: OpenedWindowsProps) {
-  if (openedWindows[5].html) toggleMinimize(openedWindows, setOpenedWindows, 5);
+  if (openedWindows[5]?.html)
+    toggleMinimize(openedWindows, setOpenedWindows, 5);
   else
-    openWindow(openedWindows, setOpenedWindows, 5, <Camera windowIndex={5} />);
+    openWindow(
+      openedWindows,
+      setOpenedWindows,
+      5,
+      <Camera windowIndex={5} />,
+      "Camera"
+    );
 }
 
 export function OpenSpotify({
   openedWindows,
   setOpenedWindows,
 }: OpenedWindowsProps) {
-  if (openedWindows[6].html) toggleMinimize(openedWindows, setOpenedWindows, 6);
+  if (openedWindows[6]?.html)
+    toggleMinimize(openedWindows, setOpenedWindows, 6);
   else
-    openWindow(openedWindows, setOpenedWindows, 6, <Spotify windowIndex={6} />);
+    openWindow(
+      openedWindows,
+      setOpenedWindows,
+      6,
+      <Spotify windowIndex={6} />,
+      "Spotify"
+    );
 }
 
 export function OpenChess({
   openedWindows,
   setOpenedWindows,
 }: OpenedWindowsProps) {
-  if (openedWindows[7].html) toggleMinimize(openedWindows, setOpenedWindows, 7);
+  if (openedWindows[7]?.html)
+    toggleMinimize(openedWindows, setOpenedWindows, 7);
   else
-    openWindow(openedWindows, setOpenedWindows, 7, <Chess windowIndex={7} />);
+    openWindow(
+      openedWindows,
+      setOpenedWindows,
+      7,
+      <Chess windowIndex={7} />,
+      "Chess"
+    );
 }
 
 export function OpenImage(
@@ -173,23 +209,18 @@ const openWindow = (
   openedWindows: Window[],
   setOpenedWindows: React.Dispatch<React.SetStateAction<Window[]>>,
   index: number,
-  html: React.JSX.Element
+  html: React.JSX.Element,
+  programName?: string
 ) => {
   setOpenedWindows((prevState) => {
     const updated = [...prevState];
-    if (!updated[index]) {
-      // Create a new window if it doesn't exist
-      updated[index] = {
-        html,
-        minimized: false,
-        maximized: false,
-        focused: true,
-        name: html.type.name || `Window${index}`,
-      };
-    } else {
-      // Update existing window's html
-      updated[index] = { ...updated[index], html };
-    }
+    updated[index] = {
+      html,
+      minimized: false,
+      maximized: false,
+      focused: true,
+      name: programName || html.type.name || `Window${index}`,
+    };
     return updated;
   });
   SetFocus(index, setOpenedWindows);
