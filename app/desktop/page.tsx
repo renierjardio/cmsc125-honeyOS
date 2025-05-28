@@ -28,10 +28,14 @@ export default function Desktop() {
         {numberOfOpenedWindows ? (
           <div className={"absolute z-20 w-full h-full pointer-events-none"}>
             {openedWindows.map((win, i) =>
-              win.html && !win.minimized ? (
+              win.html ? (
                 <div
                   key={i}
-                  className={`absolute ${win.focused ? "z-50" : "z-10"}`}
+                  className={`${
+                    win.maximized
+                      ? "fixed inset-0 z-40"
+                      : `absolute ${win.focused ? "z-50" : "z-10"}`
+                  }`}
                 >
                   {win.html}
                 </div>
