@@ -268,7 +268,7 @@ export default function FileManager({ windowIndex }: WindowProps) {
       icon={<FaFolder size={25} color={"yellow"} />}
     >
       <div
-        className={`${montserrat.className} p-4 flex flex-col text-yellow-100 relative h-full w-full bg-transparent rounded-lg`}
+        className={`${montserrat.className} pt-8 p-4 flex flex-col text-yellow-100 relative h-full w-full bg-transparent rounded-lg`}
       >
         <div className="flex items-center space-x-2">
           <button
