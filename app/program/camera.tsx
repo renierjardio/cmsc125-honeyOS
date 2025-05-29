@@ -1,146 +1,43 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useContext } from "react";
 import Webcam from "react-webcam";
-import {
-  writeBinaryFile,
-  readBinaryFile,
-  removeFile,
-  BaseDirectory,
-  createDir,
-  readDir,
-  exists,
-} from "@tauri-apps/api/fs";
+import { BaseDirectory, readBinaryFile } from "@tauri-apps/api/fs";
 import { join } from "@tauri-apps/api/path";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
 
-import { useContext } from "react";
 import { OpenImage } from "@/app/desktop/programOpener";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { CameraContext } from "@/app/context/cameraContext";
 
 import Window from "@/app/desktop/components/window";
 import { FaCamera } from "react-icons/fa";
 import { WindowProps } from "@/app/types";
 import Image from "next/image";
 
-// Constants
-const FOLDER_NAME = "honeyOS/Pictures";
-
-// Helpers
-function base64ToUint8Array(base64: string): Uint8Array {
-  const binaryString = window.atob(base64.split(",")[1]);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes;
-}
-
-async function getNextImageNumber(): Promise<number> {
-  try {
-    const entries = await readDir(FOLDER_NAME, {
-      dir: BaseDirectory.Data,
-      recursive: false,
-    });
-
-    const numbers = entries
-      .map((entry) => {
-        const match = entry.name?.match(/^HONEY-(\d+)\.jpeg$/);
-        return match ? parseInt(match[1]) : null;
-      })
-      .filter((n): n is number => n !== null);
-
-    const maxNumber = numbers.length > 0 ? Math.max(...numbers) : 0;
-    return maxNumber + 1;
-  } catch {
-    return 1;
-  }
-}
-
-// Types
-type CapturedImage = {
-  url: string;
-  name: string;
-};
-
 export default function Camera({ windowIndex }: WindowProps) {
-  const webcamRef = useRef<Webcam>(null);
-  const [capturedImages, setCapturedImages] = useState<CapturedImage[]>([]);
+  const { webcamRef } = useContext(CameraContext);
+
   const [showGallery, setShowGallery] = useState(false);
-  const [galleryLoaded, setGalleryLoaded] = useState(false);
+
+  const {
+    capturedImages,
+    captureImage,
+    loadCapturedImages,
+    deleteImage,
+    galleryLoaded,
+    setCapturedImages,
+    setGalleryLoaded,
+  } = useContext(CameraContext);
+
   const { openedWindows, setOpenedWindows } = useContext(OpenedWindowsContext);
 
-  const captureImage = async () => {
-    try {
-      const imageSrc = webcamRef.current?.getScreenshot();
-      if (!imageSrc) {
-        console.error("No image captured from webcam.");
-        return;
-      }
-
-      const imageData = base64ToUint8Array(imageSrc);
-
-      const folderExists = await exists(FOLDER_NAME, {
-        dir: BaseDirectory.Data,
-      });
-      if (!folderExists) {
-        await createDir(FOLDER_NAME, {
-          dir: BaseDirectory.Data,
-          recursive: true,
-        });
-      }
-
-      const nextNumber = await getNextImageNumber();
-      const fileName = `HONEY-${nextNumber}.jpeg`;
-      const filePath = await join(FOLDER_NAME, fileName);
-
-      await writeBinaryFile(filePath, imageData, { dir: BaseDirectory.Data });
-
-      const binary = await readBinaryFile(filePath, {
-        dir: BaseDirectory.Data,
-      });
-      const blob = new Blob([new Uint8Array(binary)], { type: "image/jpeg" });
-      const blobUrl = URL.createObjectURL(blob);
-
-      setCapturedImages((prev) => [{ url: blobUrl, name: fileName }, ...prev]);
-    } catch (error) {
-      console.error("Error capturing or saving image:", error);
+  const handleCapture = async () => {
+    const imageSrc = webcamRef.current?.getScreenshot();
+    if (imageSrc) {
+      await captureImage();
+    } else {
+      console.error("No image captured from webcam.");
     }
   };
-
-  const loadCapturedImages = async () => {
-    try {
-      const entries = await readDir(FOLDER_NAME, {
-        dir: BaseDirectory.Data,
-        recursive: false,
-      });
-
-      const imageFiles = entries
-        .filter((entry) => entry.name?.match(/^HONEY-\d+\.jpeg$/) && entry.path)
-        .sort((a, b) => {
-          const numA = parseInt(a.name?.match(/\d+/)?.[0] ?? "0");
-          const numB = parseInt(b.name?.match(/\d+/)?.[0] ?? "0");
-          return numB - numA;
-        });
-
-      const urls = await Promise.all(
-        imageFiles.map(async (file) => {
-          const binary = await readBinaryFile(file.path!, {
-            dir: BaseDirectory.Data,
-          });
-          const blob = new Blob([new Uint8Array(binary)], {
-            type: "image/jpeg",
-          });
-          const blobUrl = URL.createObjectURL(blob);
-          return { url: blobUrl, name: file.name! };
-        })
-      );
-
-      setCapturedImages(urls);
-      setGalleryLoaded(true);
-    } catch (error) {
-      console.error("Failed to load images from folder:", error);
-    }
-  };
-
 
   const handleOpenGallery = async () => {
     if (!galleryLoaded) {
@@ -151,12 +48,11 @@ export default function Camera({ windowIndex }: WindowProps) {
 
   const openImageInViewer = async (fileName: string) => {
     try {
-      const filePath = await join(FOLDER_NAME, fileName);
+      const filePath = await join("honeyOS/Pictures", fileName);
       const binary = await readBinaryFile(filePath, {
         dir: BaseDirectory.Data,
       });
 
-      const imageSrc = convertFileSrc(filePath);
       const base64Content = `data:image/jpeg;base64,${Buffer.from(
         binary
       ).toString("base64")}`;
@@ -166,7 +62,7 @@ export default function Camera({ windowIndex }: WindowProps) {
         {
           name: fileName,
           content: base64Content,
-          location: FOLDER_NAME,
+          location: "honeyOS/Pictures",
         }
       );
     } catch (error) {
@@ -201,7 +97,7 @@ export default function Camera({ windowIndex }: WindowProps) {
                 alt="Capture"
                 width={56}
                 height={56}
-                onClick={captureImage}
+                onClick={handleCapture}
                 className="cursor-pointer hover:opacity-80 active:scale-90 transition-all duration-150"
                 style={{ userSelect: "none" }}
               />
