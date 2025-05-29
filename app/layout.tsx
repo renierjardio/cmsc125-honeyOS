@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Pixelify_Sans } from "next/font/google";
 import "./globals.css";
 import { DirectoryProvider } from "./directoryContext";
 import React from "react";
@@ -9,6 +10,9 @@ import SchedulerProvider from "./context/schedulerContext";
 import MemoryManagerProvider from "./context/memoryManagerContext";
 
 const inter = Inter({ subsets: ["latin"] });
+const pixelifySans = Pixelify_Sans({
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="overflow-hidden">
-      <body className={`${inter.className} bg-primary`}>
+      <body className={`${pixelifySans.className} bg-primary`}>
         {/*<SpeechRecognitionProvider>*/}
         <OpenedWindowsProvider>
           <DirectoryProvider>

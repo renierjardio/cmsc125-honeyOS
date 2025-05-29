@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import WindowScreen from "@/app/desktop/components/window";
-import useFont from "@/hooks/useFont";
 import { FaRegSave, FaSave } from "react-icons/fa";
 import {
   FaCircleCheck,
@@ -25,8 +24,6 @@ export default function Note({
 }) {
   console.log("file prop:", file);
   console.log("isNewFile evaluated as:", isNew);
-
-  const { montserrat, roboto } = useFont();
   const { writeFile } = useFileSystem();
   const isNewFile =
     !file ||
@@ -172,7 +169,7 @@ export default function Note({
       <div className="h-full w-full bg-transparent pt-6 px-2 pb-2">
         {showNotification.show && (
           <div
-            className={`${roboto.className} ${
+            className={`${
               showNotification.type == "error" ? "bg-red-400" : "bg-green-600"
             }
                 absolute w-full grid justify-items-center text-center h-fit p-2 rounded-lg opacity-80 text-white text-sm`}
@@ -196,11 +193,9 @@ export default function Note({
               name: newContent.name,
             })
           }
-          className={`bg-transparent text-black input w-full h-full p-2 ${roboto.className}`}
+          className={`bg-transparent text-black input w-full h-full p-2`}
         />
-        <div
-          className={`flex flex-row space-x-3 absolute bottom-16 left-4 ${montserrat.className}`}
-        >
+        <div className={`flex flex-row space-x-3 absolute bottom-16 left-4`}>
           {!isNewFile && (
             <button
               onClick={async () => {
@@ -226,9 +221,7 @@ px-2 py-1 w-fit rounded-md text-yellow-950 flex flex-row space-x-1`}
             <p>Save As</p>
           </button>
           {showSaveAsDialog && (
-            <div
-              className={`${montserrat.className} flex flex-row space-x-1 h-[31px]`}
-            >
+            <div className={`flex flex-row space-x-1 h-[31px]`}>
               <input
                 id={"newFileName"}
                 type="text"

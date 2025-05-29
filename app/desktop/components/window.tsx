@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { WindowProps } from "@/app/types";
 import { SetFocus } from "@/app/desktop/programOpener";
-import useFont from "@/hooks/useFont";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
 import { Process, SchedulerContext } from "@/app/context/schedulerContext";
 import Image from "next/image";
@@ -43,7 +42,6 @@ export default function WindowScreen({
     setWaitProcesses,
     arrivalTime,
   } = useContext(SchedulerContext);
-  const { montserrat } = useFont();
 
   useEffect(
     () => {
@@ -216,11 +214,7 @@ export default function WindowScreen({
         >
           <span className="pl-[1vw] flex flex-row space-x-3">
             {icon}{" "}
-            {
-              <p className={`text-md ${montserrat.className}`}>
-                {customName ? customName : name}
-              </p>
-            }
+            {<p className={`text-md`}>{customName ? customName : name}</p>}
           </span>
           <div className="flex space-x-2 items-center pr-[1vw] text-black">
             <button
