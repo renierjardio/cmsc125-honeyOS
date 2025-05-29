@@ -16,7 +16,6 @@ import React, { useState, useContext } from "react";
 import Image from "next/image";
 import { WindowProps } from "@/app/types";
 import { FaMicrophone } from "react-icons/fa";
-import useFont from "@/hooks/useFont";
 import { Waveform } from "../desktop/components/waveform";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
 import { appWindow } from "@tauri-apps/api/window";
@@ -26,7 +25,6 @@ type SpeechRecognitionResultEvent = {
 };
 
 export default function Voice_Program({ windowIndex }: WindowProps) {
-  const { montserrat } = useFont();
   const [userSpeech, setUserSpeech] = useState("");
   const [speaking, setSpeaking] = useState(false);
   const [listening, setListening] = useState(false);
@@ -220,12 +218,10 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
         </div>
 
         <div className="flex flex-col items-center justify-center h-full text-center">
-          <h1
-            className={`text-[45px] font-bold text-[#743D31] ${montserrat.className}`}
-          >
+          <h1 className={`text-[45px] font-bold text-[#743D31]`}>
             Yes, honey?
           </h1>
-          <p className={`text-lg text-[#743D31] ${montserrat.className}`}>
+          <p className={`text-lg text-[#743D31]`}>
             {userSpeech
               ? `You said: "${userSpeech}"`
               : "How may I help you today?"}

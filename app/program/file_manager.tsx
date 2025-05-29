@@ -8,7 +8,6 @@ import { FaFolder, FaFolderPlus } from "react-icons/fa";
 import Image from "next/image";
 import { OpenNote, OpenImage } from "@/app/desktop/programOpener";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
-import useFont from "@/hooks/useFont";
 import { FaFileCirclePlus } from "react-icons/fa6";
 import { SpeechRecognitionContext } from "@/app/context/speechRecognitionContext";
 
@@ -38,7 +37,6 @@ export default function FileManager({ windowIndex }: WindowProps) {
   const { setOpenedWindows, openedWindows } = useContext(OpenedWindowsContext);
   const { command } = useContext(SpeechRecognitionContext);
   const [name, setName] = useState("");
-  const { montserrat } = useFont();
 
   const handleOptionsButtonClick = (index: number) => {
     console.log(`Options button clicked for file index: ${index}`);
@@ -268,7 +266,7 @@ export default function FileManager({ windowIndex }: WindowProps) {
       icon={<FaFolder size={25} color={"yellow"} />}
     >
       <div
-        className={`${montserrat.className} pt-8 p-4 flex flex-col text-yellow-100 relative h-full w-full bg-transparent rounded-lg`}
+        className={`pt-8 p-4 flex flex-col text-yellow-100 relative h-full w-full bg-transparent rounded-lg`}
       >
         <div className="flex items-center space-x-2">
           <button
