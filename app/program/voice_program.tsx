@@ -19,6 +19,7 @@ import { FaMicrophone } from "react-icons/fa";
 import useFont from "@/hooks/useFont";
 import { Waveform } from "../desktop/components/waveform";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
+import { SchedulerContext } from "@/app/context/schedulerContext";
 import { appWindow } from "@tauri-apps/api/window";
 
 type SpeechRecognitionResultEvent = {
@@ -153,10 +154,31 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     }
   };
 
+  const schedulerMap: Record<string, string> = {
+    "first come first serve": "fcfs",
+    fcfs: "fcfs",
+    "shortest job first": "sjf",
+    sjf: "sjf",
+    priority: "priority",
+    "round robin": "rr",
+    rr: "rr",
+  };
+
+  const memoryAlgoMap: Record<string, string> = {
+    "first in first out": "fifo",
+    fifo: "fifo",
+    "least recently used": "lru",
+    lru: "lru",
+    optimal: "optimal",
+  };
+
+  const { setSchedulerMode, schedulerMode, FCFS, SJF, PRIORITY, ROUND_ROBIN } =
+    useContext(SchedulerContext);
+
   const handleSpeechCommand = (transcript: string) => {
     setUserSpeech(transcript);
-
     const lower = transcript.toLowerCase().trim();
+
     const match = lower.match(
       /^honey[,]?\s*(open|close|shut)\s+(.+?)\s*,?\s*please\.?$/
     );
@@ -194,10 +216,68 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
           speak(`${command} is not currently open.`);
         }
       }
-    } else {
-      speak(`Sorry, I couldn't understand: ${transcript}`);
-      console.warn("Unrecognized command:", transcript);
+      return;
     }
+
+    const scheduleMatch = lower.match(
+      /^honey[,]?\s*schedule\s+(.*?)\s*please\.?$/
+    );
+
+    if (scheduleMatch) {
+      const method = schedulerMap[scheduleMatch[1]];
+      if (method) {
+        OpenSchedManager({ openedWindows, setOpenedWindows });
+        let mode: 1 | 2 | 3 | 4;
+        switch (method) {
+          case "fcfs":
+            mode = 1;
+            setSchedulerMode(mode);
+            FCFS();
+            break;
+          case "sjf":
+            mode = 2;
+            setSchedulerMode(mode);
+            SJF();
+            break;
+          case "priority":
+            mode = 3;
+            setSchedulerMode(mode);
+            PRIORITY();
+            break;
+          case "rr":
+            mode = 4;
+            setSchedulerMode(mode);
+            ROUND_ROBIN();
+            break;
+          default:
+            speak(`Scheduling method ${method} is not supported.`);
+            return;
+        }
+
+        speak(`Using ${method.toUpperCase()} for scheduling.`);
+      } else {
+        speak(`Unknown scheduling method: ${scheduleMatch[1]}`);
+      }
+      return;
+    }
+
+    const memoryMatch = lower.match(
+      /^honey[,]?\s*manage memory\s+(.*?)\s*please\.?$/
+    );
+
+    if (memoryMatch) {
+      const algo = memoryAlgoMap[memoryMatch[1]];
+      if (algo) {
+        speak(`Applying ${algo.toUpperCase()} memory management.`);
+        OpenMemoryManager({ openedWindows, setOpenedWindows });
+      } else {
+        speak(`Unknown memory algorithm: ${memoryMatch[1]}`);
+      }
+      return;
+    }
+
+    speak(`Sorry, I couldn't understand: ${transcript}`);
+    console.warn("Unrecognized command:", transcript);
   };
 
   return (
