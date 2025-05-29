@@ -268,7 +268,7 @@ export default function FileManager({ windowIndex }: WindowProps) {
       icon={<FaFolder size={25} color={"yellow"} />}
     >
       <div
-        className={`${montserrat.className} p-4 flex flex-col text-yellow-100 relative h-full bg-transparent rounded-lg`}
+        className={`${montserrat.className} p-4 flex flex-col text-yellow-100 relative h-full w-full bg-transparent rounded-lg`}
       >
         <div className="flex items-center space-x-2">
           <button
@@ -307,7 +307,7 @@ export default function FileManager({ windowIndex }: WindowProps) {
             </button>
           </div>
         </div>
-        <div className={"h-[85%] overflow-y-auto"}>
+        <div className={"flex flex-col overflow-y-auto mt-2 flex-1"}>
           <div className="flex justify-between items-center px-2 py-1 text-lg text-[#743D31] font-bold">
             <span className="w-1/2 pl-12">Name</span>
             <span className="w-1/2 text-right pr-24">Date Modified</span>

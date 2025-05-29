@@ -6,6 +6,7 @@ import React from "react";
 import OpenedWindowsProvider from "@/app/context/openedWindowsContext";
 import SpeechRecognitionProvider from "@/app/context/speechRecognitionContext";
 import SchedulerProvider from "./context/schedulerContext";
+import MemoryManagerProvider from "./context/memoryManagerContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,15 +23,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="overflow-hidden">
       <body className={`${inter.className} bg-primary`}>
-      {/*<SpeechRecognitionProvider>*/}
-      <OpenedWindowsProvider>
-        <DirectoryProvider>
-          <SchedulerProvider>
-            {children}
-          </SchedulerProvider>
-        </DirectoryProvider>
-      </OpenedWindowsProvider>
-      {/*</SpeechRecognitionProvider>*/}
+        {/*<SpeechRecognitionProvider>*/}
+        <OpenedWindowsProvider>
+          <DirectoryProvider>
+            <SchedulerProvider>
+              <MemoryManagerProvider>{children}</MemoryManagerProvider>
+            </SchedulerProvider>
+          </DirectoryProvider>
+        </OpenedWindowsProvider>
+        {/*</SpeechRecognitionProvider>*/}
       </body>
     </html>
   );
