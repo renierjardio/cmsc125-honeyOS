@@ -23,6 +23,7 @@ import { SchedulerContext } from "@/app/context/schedulerContext";
 import { MemoryManagerContext } from "../context/memoryManagerContext";
 import { appWindow } from "@tauri-apps/api/window";
 import { AlgoType } from "../context/memoryManagerContext";
+import { CameraContext } from "../context/cameraContext";
 
 type SpeechRecognitionResultEvent = {
   results: SpeechRecognitionResultList;
@@ -192,6 +193,8 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     useContext(SchedulerContext);
   const { simulateAlgorithm, setSelectedAlgo } =
     useContext(MemoryManagerContext);
+
+  const { captureImage } = useContext(CameraContext);
 
   const handleSpeechCommand = (transcript: string) => {
     setUserSpeech(transcript);
@@ -386,6 +389,29 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
       } else {
         speak(`Unknown memory algorithm: ${algoKey}`);
       }
+      return;
+    }
+
+    const takePhotoMatch = lower.match(
+      /^honey[,]?\s*take a photo\s*please\.?$/
+    );
+
+    if (takePhotoMatch) {
+      const cameraIndex = openedWindows.findIndex((w) => w.name === "Camera");
+
+      const isCameraOpen =
+        cameraIndex !== -1 && openedWindows[cameraIndex].html !== null;
+
+      if (!isCameraOpen) {
+        OpenCamera({ openedWindows, setOpenedWindows });
+        setTimeout(() => {
+          captureImage();
+        }, 500); // slight delay to allow camera to initialize
+      } else {
+        captureImage();
+      }
+
+      speak("Say cheese! Capturing your photo.");
       return;
     }
   };

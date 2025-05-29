@@ -14,7 +14,8 @@ import { WindowProps } from "@/app/types";
 import Image from "next/image";
 
 export default function Camera({ windowIndex }: WindowProps) {
-  const webcamRef = useRef<Webcam>(null);
+  const { webcamRef } = useContext(CameraContext);
+
   const [showGallery, setShowGallery] = useState(false);
 
   const {
