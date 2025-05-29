@@ -8,6 +8,7 @@ import OpenedWindowsProvider from "@/app/context/openedWindowsContext";
 import SpeechRecognitionProvider from "@/app/context/speechRecognitionContext";
 import SchedulerProvider from "./context/schedulerContext";
 import MemoryManagerProvider from "./context/memoryManagerContext";
+import CameraProvider from "./context/cameraContext";
 
 const inter = Inter({ subsets: ["latin"] });
 const pixelifySans = Pixelify_Sans({
@@ -31,7 +32,9 @@ export default function RootLayout({
         <OpenedWindowsProvider>
           <DirectoryProvider>
             <SchedulerProvider>
-              <MemoryManagerProvider>{children}</MemoryManagerProvider>
+              <MemoryManagerProvider>
+                <CameraProvider>{children}</CameraProvider>
+              </MemoryManagerProvider>
             </SchedulerProvider>
           </DirectoryProvider>
         </OpenedWindowsProvider>
