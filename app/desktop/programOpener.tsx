@@ -46,7 +46,7 @@ export function OpenNote(
       openedWindows,
       setOpenedWindows,
       1,
-      <Note windowIndex={1} file={file} />,
+      <Note windowIndex={1} file={file} isNew={!file} />, 
       "Note"
     );
   }

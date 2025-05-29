@@ -17,12 +17,24 @@ import { closeWindow } from "@/app/desktop/programOpener";
 export default function Note({
   windowIndex,
   file,
+  isNew,
 }: {
   windowIndex: number;
   file?: { content: string; location: string; name: string };
+  isNew?: boolean;
 }) {
+  console.log("file prop:", file);
+  console.log("isNewFile evaluated as:", isNew);
+
   const { montserrat, roboto } = useFont();
   const { writeFile } = useFileSystem();
+  const isNewFile =
+    !file ||
+    file.name.trim() === "" ||
+    file.location.trim() === "" ||
+    file.name.toLowerCase() === "untitled.txt" ||
+    file.content.trim() === "";
+
   const { command } = useContext(SpeechRecognitionContext);
   const [message, setMessage] = useState({
     content: "",
@@ -109,7 +121,7 @@ export default function Note({
       message: "",
     };
     if (newFileName || currentContent.content !== newContent.content) {
-      const filename = newFileName ? newFileName + ".txt" : file?.name;
+      const filename = newFileName ? newFileName : file?.name;
       console.log("new content", newContent);
       response = await writeFile(
         newContent.location + "\\" + filename,
@@ -189,20 +201,23 @@ export default function Note({
         <div
           className={`flex flex-row space-x-3 absolute bottom-16 left-4 ${montserrat.className}`}
         >
-          <button
-            onClick={async () => {
-              await saveFile();
-            }}
-            className={`${
-              currentContent.content !== newContent.content
-                ? "bg-yellow-500"
-                : "bg-gray-700 cursor-default"
-            } 
-                        px-2 py-1 w-fit rounded-md text-yellow-950 flex flex-row space-x-1`}
-          >
-            <FaSave size={20} />
-            <p>Save</p>
-          </button>
+          {!isNewFile && (
+            <button
+              onClick={async () => {
+                await saveFile();
+              }}
+              className={`${
+                currentContent.content !== newContent.content
+                  ? "bg-yellow-500"
+                  : "bg-gray-700 cursor-default"
+              } 
+px-2 py-1 w-fit rounded-md text-yellow-950 flex flex-row space-x-1`}
+            >
+              <FaSave size={20} />
+              <p>Save</p>
+            </button>
+          )}
+
           <button
             onClick={() => setShowSaveAsDialog(true)}
             className={`bg-yellow-500 px-2 py-1 w-fit rounded-md text-yellow-950 flex flex-row space-x-1`}
@@ -218,7 +233,7 @@ export default function Note({
                 id={"newFileName"}
                 type="text"
                 className={`text-white rounded-lg w-[150px] p-1 px-2 border-2 border-yellow-500`}
-                placeholder={"Save as .txt file"}
+                placeholder={"enter file name"}
               />
               <button
                 onClick={async (e) => {
