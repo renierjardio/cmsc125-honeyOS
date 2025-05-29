@@ -9,6 +9,7 @@ import {
   OpenSchedManager,
   OpenMemoryManager,
   closeWindow,
+  OpenVoice,
 } from "@/app/desktop/programOpener";
 
 import WindowScreen from "../desktop/components/window";
@@ -18,7 +19,10 @@ import { WindowProps } from "@/app/types";
 import { FaMicrophone } from "react-icons/fa";
 import { Waveform } from "../desktop/components/waveform";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
+import { SchedulerContext } from "@/app/context/schedulerContext";
+import { MemoryManagerContext } from "../context/memoryManagerContext";
 import { appWindow } from "@tauri-apps/api/window";
+import { AlgoType } from "../context/memoryManagerContext";
 
 type SpeechRecognitionResultEvent = {
   results: SpeechRecognitionResultList;
@@ -36,6 +40,17 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
       .replace(/[^a-z0-9]/g, "")
       .trim();
 
+  const programNameMap: Record<string, string> = {
+    note: "Note",
+    spotify: "Spotify",
+    chess: "Chess",
+    camera: "Camera",
+    "file manager": "File Manager",
+    "scheduler manager": "Scheduler Manager",
+    "memory manager": "Memory Manager",
+    "voice program": "Voice Program",
+  };
+
   const programAliases: Record<string, string[]> = {
     note: ["note", "notes", "notepad", "text editor"],
     spotify: ["spotify", "music"],
@@ -44,6 +59,7 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     "file manager": ["filemanager", "files", "explorer"],
     "scheduler manager": ["schedule", "scheduler", "scheduler manager"],
     "memory manager": ["memory", "ram", "memory manager"],
+    "voice program": ["voice program", "voice", "voice command"],
   };
 
   const resolveProgramKey = (input: string): string | null => {
@@ -146,17 +162,43 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
       case "memory manager":
         OpenMemoryManager({ openedWindows, setOpenedWindows });
         break;
+      case "voice program":
+        OpenVoice({ openedWindows, setOpenedWindows });
+        break;
       default:
         speak(`Sorry, I don't know how to open ${input}.`);
     }
   };
 
+  const schedulerMap: Record<string, string> = {
+    "first come first serve": "fcfs",
+    fcfs: "fcfs",
+    "shortest job first": "sjf",
+    sjf: "sjf",
+    priority: "priority",
+    "round robin": "rr",
+    rr: "rr",
+  };
+
+  const memoryAlgoMap: Record<string, string> = {
+    "first in first out": "fifo",
+    fifo: "fifo",
+    "least recently used": "lru",
+    lru: "lru",
+    optimal: "optimal",
+  };
+
+  const { setSchedulerMode, schedulerMode, FCFS, SJF, PRIORITY, ROUND_ROBIN } =
+    useContext(SchedulerContext);
+  const { simulateAlgorithm, setSelectedAlgo } =
+    useContext(MemoryManagerContext);
+
   const handleSpeechCommand = (transcript: string) => {
     setUserSpeech(transcript);
-
     const lower = transcript.toLowerCase().trim();
+
     const match = lower.match(
-      /^honey[,]?\s*(open|close|shut)\s+(.+?)\s*,?\s*please\.?$/
+      /^honey[,]?\s*(open|close|shut|maximize|restore|minimize)\s+(.+?)\s*,?\s*please\.?$/
     );
 
     if (match && match[1] && match[2]) {
@@ -176,13 +218,22 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
         speak(`I couldn't recognize the program: ${command}`);
         return;
       }
+      const resolvedName = programNameMap[resolved];
 
       if (action === "open") {
-        speak(`Opening ${command}`);
-        openProgramByName(command);
+        const index = openedWindows.findIndex(
+          (w) => w.name === resolvedName && w.html === null
+        );
+
+        if (index !== -1) {
+          speak(`Opening ${command}`);
+          openProgramByName(command);
+        } else {
+          speak(`${command} is already currently open.`);
+        }
       } else if (action === "close") {
         const index = openedWindows.findIndex(
-          (w) => normalize(w.name || "") === normalize(resolved)
+          (w) => w.name === resolvedName && w.html !== null
         );
 
         if (index !== -1) {
@@ -191,10 +242,151 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
         } else {
           speak(`${command} is not currently open.`);
         }
+      } else if (action === "maximize") {
+        const index = openedWindows.findIndex(
+          (w) => w.name === resolvedName && w.html !== null
+        );
+
+        if (index !== -1) {
+          const win = openedWindows[index];
+          if (!win.maximized && !win.minimized) {
+            speak(`${win.name} is already restored.`);
+          } else {
+            const updated = [...openedWindows];
+            updated[index] = {
+              ...win,
+              maximized: false,
+              minimized: false,
+            };
+            setOpenedWindows(updated);
+            speak(`Restoring ${win.name}.`);
+          }
+        } else {
+          speak(`${command} is not currently open.`);
+        }
+      } else if (action === "restore") {
+        const index = openedWindows.findIndex(
+          (w) => w.name === resolvedName && w.html !== null
+        );
+
+        if (index !== -1) {
+          if (!openedWindows[index].maximized) {
+            speak(`${openedWindows[index].name} is already restored.`);
+          } else {
+            const updated = [...openedWindows];
+            updated[index] = {
+              ...updated[index],
+              maximized: false,
+            };
+            setOpenedWindows(updated);
+            speak(`Restoring ${openedWindows[index].name}.`);
+          }
+        } else {
+          speak(`${command} is not currently open.`);
+        }
+      } else if (action === "minimize") {
+        const index = openedWindows.findIndex(
+          (w) => w.name === resolvedName && w.html !== null
+        );
+
+        if (index !== -1) {
+          const win = openedWindows[index];
+          if (win.minimized) {
+            speak(`${win.name} is already minimized.`);
+          } else {
+            const updated = [...openedWindows];
+            updated[index] = {
+              ...win,
+              minimized: true,
+              maximized: false,
+            };
+            setOpenedWindows(updated);
+            speak(`Minimizing ${win.name}.`);
+          }
+        } else {
+          speak(`${command} is not currently open.`);
+        }
       }
-    } else {
-      speak(`Sorry, I couldn't understand: ${transcript}`);
-      console.warn("Unrecognized command:", transcript);
+      return;
+    }
+
+    const scheduleMatch = lower.match(
+      /^honey[,]?\s*schedule\s+(.*?)\s*please\.?$/
+    );
+
+    if (scheduleMatch) {
+      const method = schedulerMap[scheduleMatch[1]];
+      if (method) {
+        const schedManagerIndex = openedWindows.findIndex(
+          (window) => window.name === "Scheduler Manager"
+        );
+
+        const isSchedManagerOpen =
+          schedManagerIndex !== -1 &&
+          openedWindows[schedManagerIndex].html !== null;
+
+        if (!isSchedManagerOpen) {
+          OpenSchedManager({ openedWindows, setOpenedWindows });
+        }
+
+        let mode: 1 | 2 | 3 | 4;
+        switch (method) {
+          case "fcfs":
+            mode = 1;
+            setSchedulerMode(mode);
+            break;
+          case "sjf":
+            mode = 2;
+            setSchedulerMode(mode);
+            break;
+          case "priority":
+            mode = 3;
+            setSchedulerMode(mode);
+            break;
+          case "rr":
+            mode = 4;
+            setSchedulerMode(mode);
+            break;
+          default:
+            speak(`Scheduling method ${method} is not supported.`);
+            return;
+        }
+
+        speak(`Using ${method.toUpperCase()} for scheduling.`);
+      } else {
+        speak(`Unknown scheduling method: ${scheduleMatch[1]}`);
+      }
+      return;
+    }
+
+    const memoryMatch = lower.match(
+      /^honey[,]?\s*manage memory\s+(.*?)\s*please\.?$/
+    );
+
+    if (memoryMatch) {
+      const algoKey = memoryMatch[1];
+      const algo = memoryAlgoMap[algoKey];
+
+      if (algo) {
+        speak(`Applying ${algo.toUpperCase()} memory management.`);
+
+        const memManagerIndex = openedWindows.findIndex(
+          (window) => window.name === "Memory Manager"
+        );
+
+        const isMemManagerOpen =
+          memManagerIndex !== -1 &&
+          openedWindows[memManagerIndex].html !== null;
+
+        if (!isMemManagerOpen) {
+          OpenMemoryManager({ openedWindows, setOpenedWindows });
+        }
+
+        simulateAlgorithm(algo.toUpperCase() as AlgoType);
+      } else {
+        speak(`Unknown memory algorithm: ${algoKey}`);
+      }
+      return;
     }
   };
 

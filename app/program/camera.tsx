@@ -11,6 +11,11 @@ import {
 } from "@tauri-apps/api/fs";
 import { join } from "@tauri-apps/api/path";
 
+import { useContext } from "react";
+import { OpenImage } from "@/app/desktop/programOpener";
+import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
+
 import Window from "@/app/desktop/components/window";
 import { FaCamera } from "react-icons/fa";
 import { WindowProps } from "@/app/types";
@@ -61,6 +66,7 @@ export default function Camera({ windowIndex }: WindowProps) {
   const [capturedImages, setCapturedImages] = useState<CapturedImage[]>([]);
   const [showGallery, setShowGallery] = useState(false);
   const [galleryLoaded, setGalleryLoaded] = useState(false);
+  const { openedWindows, setOpenedWindows } = useContext(OpenedWindowsContext);
 
   const captureImage = async () => {
     try {
@@ -153,6 +159,31 @@ export default function Camera({ windowIndex }: WindowProps) {
     setShowGallery(true);
   };
 
+  const openImageInViewer = async (fileName: string) => {
+    try {
+      const filePath = await join(FOLDER_NAME, fileName);
+      const binary = await readBinaryFile(filePath, {
+        dir: BaseDirectory.Data,
+      });
+
+      const imageSrc = convertFileSrc(filePath);
+      const base64Content = `data:image/jpeg;base64,${Buffer.from(
+        binary
+      ).toString("base64")}`;
+
+      OpenImage(
+        { openedWindows, setOpenedWindows },
+        {
+          name: fileName,
+          content: base64Content,
+          location: FOLDER_NAME,
+        }
+      );
+    } catch (error) {
+      console.error("Failed to open image in viewer:", error);
+    }
+  };
+
   const videoConstraints = { facingMode: "user" };
 
   return (
@@ -204,7 +235,8 @@ export default function Camera({ windowIndex }: WindowProps) {
               {capturedImages.map((img) => (
                 <div
                   key={img.name}
-                  className="relative w-full pb-[75%] rounded-lg overflow-hidden group"
+                  className="relative w-full pb-[75%] rounded-lg overflow-hidden group border border-2 border-[#743D31] cursor-pointer"
+                  onClick={() => openImageInViewer(img.name)}
                 >
                   <img
                     src={img.url}
@@ -216,15 +248,6 @@ export default function Camera({ windowIndex }: WindowProps) {
                       objectFit: "cover",
                       borderRadius: "inherit",
                     }}
-                  />
-                  <Image
-                    src="/revisedHoneyOS/deleteButton.png"
-                    alt="Delete"
-                    width={32}
-                    height={32}
-                    onClick={() => deleteImage(img.name)}
-                    className="absolute top-2 right-2 z-10 cursor-pointer opacity-80 group-hover:opacity-100 transition-all"
-                    style={{ userSelect: "none" }}
                   />
                 </div>
               ))}

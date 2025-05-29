@@ -49,16 +49,23 @@ export default function Taskbar() {
     return () => clearInterval(interval);
   }, []);
 
+  const isWindowOpen = (name: string) =>
+    openedWindows.find((w) => w.name === name && w.html !== null) !== undefined;
+
   return (
     <div className="text-sm flex items-center justify-center font-consolas space-x-1 gap-5 text-white w-[100vw] h-[15vh]">
       <div
         className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
-            isHoveringMic
+            isHoveringMic || isWindowOpen("Voice Program")
               ? "/revisedHoneyOS/flower-hover.png"
               : "/revisedHoneyOS/flower-normal.png"
           })`,
+          filter:
+            isHoveringMic || isWindowOpen("Voice Program")
+              ? "brightness(0.85)"
+              : "none",
           backgroundSize: "contain",
         }}
         onMouseEnter={() => setIsHoveringMic(true)}
@@ -77,10 +84,14 @@ export default function Taskbar() {
         className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
-            isHoveringNote
+            isHoveringNote || isWindowOpen("Note")
               ? "/revisedHoneyOS/flower-hover.png"
               : "/revisedHoneyOS/flower-normal.png"
           })`,
+          filter:
+            isHoveringNote || isWindowOpen("Note")
+              ? "brightness(0.85)"
+              : "none",
           backgroundSize: "contain",
         }}
         onMouseEnter={() => setIsHoveringNote(true)}
@@ -106,10 +117,14 @@ export default function Taskbar() {
         className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
-            isHoveringFolder
+            isHoveringFolder || isWindowOpen("File Manager")
               ? "/revisedHoneyOS/flower-hover.png"
               : "/revisedHoneyOS/flower-normal.png"
           })`,
+          filter:
+            isHoveringFolder || isWindowOpen("File Manager")
+              ? "brightness(0.85)"
+              : "none",
           backgroundSize: "contain",
         }}
         onMouseEnter={() => setIsHoveringFolder(true)}
@@ -128,10 +143,14 @@ export default function Taskbar() {
         className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
-            isHoveringTask
+            isHoveringTask || isWindowOpen("Scheduler Manager")
               ? "/revisedHoneyOS/flower-hover.png"
               : "/revisedHoneyOS/flower-normal.png"
           })`,
+          filter:
+            isHoveringTask || isWindowOpen("Scheduler Manager")
+              ? "brightness(0.85)"
+              : "none",
           backgroundSize: "contain",
         }}
         onMouseEnter={() => setIsHoveringTask(true)}
@@ -145,10 +164,14 @@ export default function Taskbar() {
         className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
-            isHoveringMemory
+            isHoveringMemory || isWindowOpen("Memory Manager")
               ? "/revisedHoneyOS/flower-hover.png"
               : "/revisedHoneyOS/flower-normal.png"
           })`,
+          filter:
+            isHoveringMemory || isWindowOpen("Memory Manager")
+              ? "brightness(0.85)"
+              : "none",
           backgroundSize: "contain",
         }}
         onMouseEnter={() => setIsHoveringMemory(true)}
@@ -162,10 +185,14 @@ export default function Taskbar() {
         className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
-            isHoveringCamera
+            isHoveringCamera || isWindowOpen("Camera")
               ? "/revisedHoneyOS/flower-hover.png"
               : "/revisedHoneyOS/flower-normal.png"
           })`,
+          filter:
+            isHoveringCamera || isWindowOpen("Camera")
+              ? "brightness(0.85)"
+              : "none",
           backgroundSize: "contain",
         }}
         onMouseEnter={() => setIsHoveringCamera(true)}
@@ -184,10 +211,14 @@ export default function Taskbar() {
         className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
-            isHoveringSpotify
+            isHoveringSpotify || isWindowOpen("Spotify")
               ? "/revisedHoneyOS/flower-hover.png"
               : "/revisedHoneyOS/flower-normal.png"
           })`,
+          filter:
+            isHoveringSpotify || isWindowOpen("Spotify")
+              ? "brightness(0.85)"
+              : "none",
           backgroundSize: "contain",
         }}
         onMouseEnter={() => setIsHoveringSpotify(true)}
@@ -206,10 +237,14 @@ export default function Taskbar() {
         className={`flex w-32 h-32 cursor-pointer transition-all duration-300 rounded-md bg-center bg-no-repeat bg-contain items-center justify-center`}
         style={{
           backgroundImage: `url(${
-            isHoveringChess
+            isHoveringChess || isWindowOpen("Chess")
               ? "/revisedHoneyOS/flower-hover.png"
               : "/revisedHoneyOS/flower-normal.png"
           })`,
+          filter:
+            isHoveringChess || isWindowOpen("Chess")
+              ? "brightness(0.85)"
+              : "none",
           backgroundSize: "contain",
         }}
         onMouseEnter={() => setIsHoveringChess(true)}
