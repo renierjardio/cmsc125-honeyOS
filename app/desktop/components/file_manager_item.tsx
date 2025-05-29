@@ -42,7 +42,7 @@ const FileManagerItem: React.FC<FileManagerItemProps> = ({
   return (
     <>
       <div
-        className="flex items-center justify-between mb-2 cursor-pointer w-[47vw] h-9 text-sm bg-[#F6D69A] border-4 border-[#743D31] rounded-lg"
+        className="flex items-center justify-between mb-2 cursor-pointer w-full h-9 text-sm bg-[#F6D69A] border-4 border-[#743D31] rounded-lg"
         onClick={() => {
           if (file.is_dir) {
             setHoneyDirectory(file.name);

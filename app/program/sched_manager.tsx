@@ -46,7 +46,7 @@ export default function Manager({ windowIndex }: WindowProps) {
       icon={<Icon path={mdiCalendarClock} size={1} color={"yellow"} />}
     >
       <div
-        className={`relative text-[#743D31] mx-[0.5%] w-[99.1%] h-full justify-content-center overflow-hidden`}
+        className={`relative text-[#743D31] pt-2 mx-[0.5%] w-[99.1%] h-full justify-content-center overflow-hidden`}
       >
         <div className="flex flex-row pt-[4vh] pl-[3vh] pb-[1vh] space-x-3 items-center">
           <div className="text-4xl font-bold">TASK SCHEDULER</div>
