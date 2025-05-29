@@ -204,7 +204,7 @@ export default function Camera({ windowIndex }: WindowProps) {
               {capturedImages.map((img) => (
                 <div
                   key={img.name}
-                  className="relative w-full pb-[75%] rounded-lg overflow-hidden group"
+                  className="relative w-full pb-[75%] rounded-lg overflow-hidden group border border-2 border-[#743D31]"
                 >
                   <img
                     src={img.url}
