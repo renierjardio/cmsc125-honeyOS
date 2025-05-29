@@ -141,16 +141,6 @@ export default function Camera({ windowIndex }: WindowProps) {
     }
   };
 
-  const deleteImage = async (fileName: string) => {
-    try {
-      const filePath = await join(FOLDER_NAME, fileName);
-      await removeFile(filePath, { dir: BaseDirectory.Data });
-
-      setCapturedImages((prev) => prev.filter((img) => img.name !== fileName));
-    } catch (error) {
-      console.error("Failed to delete image:", error);
-    }
-  };
 
   const handleOpenGallery = async () => {
     if (!galleryLoaded) {
