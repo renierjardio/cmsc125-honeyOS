@@ -9,6 +9,7 @@ import SpeechRecognitionProvider from "@/app/context/speechRecognitionContext";
 import SchedulerProvider from "./context/schedulerContext";
 import MemoryManagerProvider from "./context/memoryManagerContext";
 import CameraProvider from "./context/cameraContext";
+import { NoteProvider } from "./context/noteContext";
 
 const inter = Inter({ subsets: ["latin"] });
 const pixelifySans = Pixelify_Sans({
@@ -33,7 +34,9 @@ export default function RootLayout({
           <DirectoryProvider>
             <SchedulerProvider>
               <MemoryManagerProvider>
-                <CameraProvider>{children}</CameraProvider>
+                <CameraProvider>
+                  <NoteProvider windowIndex={1}>{children}</NoteProvider>
+                </CameraProvider>
               </MemoryManagerProvider>
             </SchedulerProvider>
           </DirectoryProvider>
