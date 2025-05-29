@@ -204,7 +204,7 @@ export default function Camera({ windowIndex }: WindowProps) {
               {capturedImages.map((img) => (
                 <div
                   key={img.name}
-                  className="relative w-full pb-[75%] rounded-lg overflow-hidden group"
+                  className="relative w-full pb-[75%] rounded-lg overflow-hidden group border border-2 border-[#743D31]"
                 >
                   <img
                     src={img.url}
@@ -220,8 +220,8 @@ export default function Camera({ windowIndex }: WindowProps) {
                   <Image
                     src="/revisedHoneyOS/deleteButton.png"
                     alt="Delete"
-                    width={32}
-                    height={32}
+                    width={64}
+                    height={64}
                     onClick={() => deleteImage(img.name)}
                     className="absolute top-2 right-2 z-10 cursor-pointer opacity-80 group-hover:opacity-100 transition-all"
                     style={{ userSelect: "none" }}
