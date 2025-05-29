@@ -21,7 +21,9 @@ import useFont from "@/hooks/useFont";
 import { Waveform } from "../desktop/components/waveform";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
 import { SchedulerContext } from "@/app/context/schedulerContext";
+import { MemoryManagerContext } from "../context/memoryManagerContext";
 import { appWindow } from "@tauri-apps/api/window";
+import { AlgoType } from "../context/memoryManagerContext";
 
 type SpeechRecognitionResultEvent = {
   results: SpeechRecognitionResultList;
@@ -190,6 +192,8 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
 
   const { setSchedulerMode, schedulerMode, FCFS, SJF, PRIORITY, ROUND_ROBIN } =
     useContext(SchedulerContext);
+  const { simulateAlgorithm, setSelectedAlgo } =
+    useContext(MemoryManagerContext);
 
   const handleSpeechCommand = (transcript: string) => {
     setUserSpeech(transcript);
@@ -362,18 +366,30 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     );
 
     if (memoryMatch) {
-      const algo = memoryAlgoMap[memoryMatch[1]];
+      const algoKey = memoryMatch[1];
+      const algo = memoryAlgoMap[algoKey];
+
       if (algo) {
         speak(`Applying ${algo.toUpperCase()} memory management.`);
-        OpenMemoryManager({ openedWindows, setOpenedWindows });
+
+        const memManagerIndex = openedWindows.findIndex(
+          (window) => window.name === "Memory Manager"
+        );
+
+        const isMemManagerOpen =
+          memManagerIndex !== -1 &&
+          openedWindows[memManagerIndex].html !== null;
+
+        if (!isMemManagerOpen) {
+          OpenMemoryManager({ openedWindows, setOpenedWindows });
+        }
+
+        simulateAlgorithm(algo.toUpperCase() as AlgoType);
       } else {
-        speak(`Unknown memory algorithm: ${memoryMatch[1]}`);
+        speak(`Unknown memory algorithm: ${algoKey}`);
       }
       return;
     }
-
-    speak(`Sorry, I couldn't understand: ${transcript}`);
-    console.warn("Unrecognized command:", transcript);
   };
 
   return (
