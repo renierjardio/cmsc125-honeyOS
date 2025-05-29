@@ -258,11 +258,15 @@ export default function WindowScreen({
               }}
             >
               <Image
-                src={"/revisedHoneyOS/maximizeButton.png"}
+                src={
+                  openedWindows[windowIndex].maximized
+                    ? "/revisedHoneyOS/minimizeButton.png"
+                    : "/revisedHoneyOS/maximizeButton.png"
+                }
                 height={90}
                 width={90}
                 className="w-full h-full hover:brightness-75"
-                alt="wallpaper"
+                alt="toggle window state"
               />
             </button>
             <button className="" onClick={closeThisWindow}>

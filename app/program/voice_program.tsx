@@ -9,6 +9,7 @@ import {
   OpenSchedManager,
   OpenMemoryManager,
   closeWindow,
+  OpenVoice,
 } from "@/app/desktop/programOpener";
 
 import WindowScreen from "../desktop/components/window";
@@ -39,6 +40,17 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
       .replace(/[^a-z0-9]/g, "")
       .trim();
 
+  const programNameMap: Record<string, string> = {
+    note: "Note",
+    spotify: "Spotify",
+    chess: "Chess",
+    camera: "Camera",
+    "file manager": "File Manager",
+    "scheduler manager": "Scheduler Manager",
+    "memory manager": "Memory Manager",
+    "voice program": "Voice Program",
+  };
+
   const programAliases: Record<string, string[]> = {
     note: ["note", "notes", "notepad", "text editor"],
     spotify: ["spotify", "music"],
@@ -47,6 +59,7 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     "file manager": ["filemanager", "files", "explorer"],
     "scheduler manager": ["schedule", "scheduler", "scheduler manager"],
     "memory manager": ["memory", "ram", "memory manager"],
+    "voice program": ["voice program", "voice", "voice command"],
   };
 
   const resolveProgramKey = (input: string): string | null => {
@@ -149,6 +162,9 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
       case "memory manager":
         OpenMemoryManager({ openedWindows, setOpenedWindows });
         break;
+      case "voice program":
+        OpenVoice({ openedWindows, setOpenedWindows });
+        break;
       default:
         speak(`Sorry, I don't know how to open ${input}.`);
     }
@@ -180,7 +196,7 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     const lower = transcript.toLowerCase().trim();
 
     const match = lower.match(
-      /^honey[,]?\s*(open|close|shut)\s+(.+?)\s*,?\s*please\.?$/
+      /^honey[,]?\s*(open|close|shut|maximize|restore|minimize)\s+(.+?)\s*,?\s*please\.?$/
     );
 
     if (match && match[1] && match[2]) {
@@ -200,18 +216,91 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
         speak(`I couldn't recognize the program: ${command}`);
         return;
       }
+      const resolvedName = programNameMap[resolved];
 
       if (action === "open") {
-        speak(`Opening ${command}`);
-        openProgramByName(command);
+        const index = openedWindows.findIndex(
+          (w) => w.name === resolvedName && w.html === null
+        );
+
+        if (index !== -1) {
+          speak(`Opening ${command}`);
+          openProgramByName(command);
+        } else {
+          speak(`${command} is already currently open.`);
+        }
       } else if (action === "close") {
         const index = openedWindows.findIndex(
-          (w) => normalize(w.name || "") === normalize(resolved)
+          (w) => w.name === resolvedName && w.html !== null
         );
 
         if (index !== -1) {
           speak(`Closing the ${openedWindows[index].name} window.`);
           closeWindow(openedWindows, setOpenedWindows, index);
+        } else {
+          speak(`${command} is not currently open.`);
+        }
+      } else if (action === "maximize") {
+        const index = openedWindows.findIndex(
+          (w) => w.name === resolvedName && w.html !== null
+        );
+
+        if (index !== -1) {
+          const win = openedWindows[index];
+          if (!win.maximized && !win.minimized) {
+            speak(`${win.name} is already restored.`);
+          } else {
+            const updated = [...openedWindows];
+            updated[index] = {
+              ...win,
+              maximized: false,
+              minimized: false,
+            };
+            setOpenedWindows(updated);
+            speak(`Restoring ${win.name}.`);
+          }
+        } else {
+          speak(`${command} is not currently open.`);
+        }
+      } else if (action === "restore") {
+        const index = openedWindows.findIndex(
+          (w) => w.name === resolvedName && w.html !== null
+        );
+
+        if (index !== -1) {
+          if (!openedWindows[index].maximized) {
+            speak(`${openedWindows[index].name} is already restored.`);
+          } else {
+            const updated = [...openedWindows];
+            updated[index] = {
+              ...updated[index],
+              maximized: false,
+            };
+            setOpenedWindows(updated);
+            speak(`Restoring ${openedWindows[index].name}.`);
+          }
+        } else {
+          speak(`${command} is not currently open.`);
+        }
+      } else if (action === "minimize") {
+        const index = openedWindows.findIndex(
+          (w) => w.name === resolvedName && w.html !== null
+        );
+
+        if (index !== -1) {
+          const win = openedWindows[index];
+          if (win.minimized) {
+            speak(`${win.name} is already minimized.`);
+          } else {
+            const updated = [...openedWindows];
+            updated[index] = {
+              ...win,
+              minimized: true,
+              maximized: false,
+            };
+            setOpenedWindows(updated);
+            speak(`Minimizing ${win.name}.`);
+          }
         } else {
           speak(`${command} is not currently open.`);
         }
