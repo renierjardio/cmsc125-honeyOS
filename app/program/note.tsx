@@ -12,6 +12,7 @@ import useFileSystem from "@/hooks/useFileSystem";
 import { SpeechRecognitionContext } from "@/app/context/speechRecognitionContext";
 import { OpenedWindowsContext } from "@/app/context/openedWindowsContext";
 import { closeWindow } from "@/app/desktop/programOpener";
+import { NoteContext } from "@/app/context/noteContext"; // <- Make sure the path is correct
 
 export default function Note({
   windowIndex,
@@ -22,41 +23,42 @@ export default function Note({
   file?: { content: string; location: string; name: string };
   isNew?: boolean;
 }) {
-  console.log("file prop:", file);
-  console.log("isNewFile evaluated as:", isNew);
   const { writeFile } = useFileSystem();
+  const { command } = useContext(SpeechRecognitionContext);
+  const { openedWindows, setOpenedWindows } = useContext(OpenedWindowsContext);
+  const noteContext = useContext(NoteContext);
+
+  if (!noteContext) {
+    throw new Error(
+      "NoteContext is undefined. Please ensure NoteProvider is in the component tree."
+    );
+  }
+
+  const {
+    currentContent,
+    newContent,
+    setNewContent,
+    setCurrentContent,
+    showNotification,
+    setShowNotification,
+    showSaveAsDialog,
+    setShowSaveAsDialog,
+    showConfirmDialog,
+    setShowConfirmDialog,
+    message,
+    setMessage,
+    tempName,
+    setTempName,
+    customName,
+    setCustomName,
+  } = noteContext;
+
   const isNewFile =
     !file ||
     file.name.trim() === "" ||
     file.location.trim() === "" ||
     file.name.toLowerCase() === "untitled.txt" ||
     file.content.trim() === "";
-
-  const { command } = useContext(SpeechRecognitionContext);
-  const [message, setMessage] = useState({
-    content: "",
-    after: "no-close",
-  });
-  const [customName, setCustomName] = useState(file?.name);
-  const [tempName, setTempName] = useState("");
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [showSaveAsDialog, setShowSaveAsDialog] = useState(false);
-  const { openedWindows, setOpenedWindows } = useContext(OpenedWindowsContext);
-  const [showNotification, setShowNotification] = useState({
-    show: false,
-    type: "",
-    message: "",
-  });
-  const [currentContent, setCurrentContent] = useState({
-    content: "",
-    location: "",
-    name: "",
-  });
-  const [newContent, setNewContent] = useState({
-    content: "",
-    location: "",
-    name: "",
-  });
 
   useEffect(() => {
     if (file) {
@@ -69,63 +71,58 @@ export default function Note({
     if (command.includes("close note")) {
       if (onClose()) closeWindow(openedWindows, setOpenedWindows, windowIndex);
     }
+
     if (openedWindows[windowIndex].focused) {
       if (showConfirmDialog) {
-        if (command.substring(0, 7) === "confirm") {
+        if (command.startsWith("confirm")) {
           setShowConfirmDialog(false);
-          saveFile(tempName).then((r) => {});
-        } else if (command.substring(0, 6) === "cancel") {
+          saveFile(tempName);
+        } else if (command.startsWith("cancel")) {
           setShowConfirmDialog(false);
           setShowSaveAsDialog(false);
           if (message.after === "close")
             closeWindow(openedWindows, setOpenedWindows, windowIndex);
         }
       } else {
-        if (command.substring(0, 4) === "type") {
+        if (command.startsWith("type")) {
           const content = command.substring(5);
-          if (content === "newline" || content === "new line") {
-            setNewContent({
-              content: newContent.content + "\n",
-              location: newContent.location,
-              name: newContent.name,
-            });
-          } else {
-            setNewContent({
-              content: newContent.content + content,
-              location: newContent.location,
-              name: newContent.name,
-            });
-          }
+          const updatedContent =
+            content === "newline" || content === "new line"
+              ? newContent.content + "\n"
+              : newContent.content + content;
+
+          setNewContent({
+            ...newContent,
+            content: updatedContent,
+          });
         } else if (
-          command.substring(0, 7) == "save as" ||
-          command.substring(0, 7) == "save us"
+          command.startsWith("save as") ||
+          command.startsWith("save us")
         ) {
-          setTempName(command.substring(8));
+          const newName = command.substring(8);
+          setTempName(newName);
           setShowConfirmDialog(true);
           setMessage({
-            content: `New file will be saved as ${tempName}.txt`,
+            content: `New file will be saved as ${newName}.txt`,
             after: "no-close",
           });
-        } else if (command.substring(0, 4) == "save") {
-          saveFile().then((r) => {});
+        } else if (command.startsWith("save")) {
+          saveFile();
         }
       }
     }
   }, [command]);
+
   const saveFile = async (newFileName?: string) => {
-    let response: { status: boolean; message: string } = {
-      status: false,
-      message: "",
-    };
     if (newFileName || currentContent.content !== newContent.content) {
-      const filename = newFileName ? newFileName : file?.name;
-      console.log("new content", newContent);
-      response = await writeFile(
+      const filename = newFileName || currentContent.name;
+      const response = await writeFile(
         newContent.location + "\\" + filename,
         newContent.content
       );
+
       if (response.status) {
-        setCurrentContent(newContent);
+        setCurrentContent({ ...newContent });
         setShowNotification({
           show: true,
           type: "success",
@@ -138,11 +135,14 @@ export default function Note({
           message: response.message,
         });
       }
-      setInterval(() => {
+
+      setTimeout(() => {
         setShowNotification({ show: false, type: "", message: "" });
       }, 3000);
+
+      return response.status;
     }
-    return response.status;
+    return false;
   };
 
   const onClose = () => {
@@ -158,6 +158,7 @@ export default function Note({
     }
     return true;
   };
+
   return (
     <WindowScreen
       name={"Note"}
@@ -170,12 +171,11 @@ export default function Note({
         {showNotification.show && (
           <div
             className={`${
-              showNotification.type == "error" ? "bg-red-400" : "bg-green-600"
-            }
-                absolute w-full grid justify-items-center text-center h-fit p-2 rounded-lg opacity-80 text-white text-sm`}
+              showNotification.type === "error" ? "bg-red-400" : "bg-green-600"
+            } absolute w-full grid justify-items-center text-center h-fit p-2 rounded-lg opacity-80 text-white text-sm`}
           >
             <div className={"flex flex-row space-x-1"}>
-              {showNotification.type == "error" ? (
+              {showNotification.type === "error" ? (
                 <FaCircleXmark size={20} />
               ) : (
                 <FaCircleCheck size={20} />
@@ -184,18 +184,16 @@ export default function Note({
             </div>
           </div>
         )}
+
         <textarea
           value={newContent.content}
           onChange={(e) =>
-            setNewContent({
-              content: e.target.value,
-              location: newContent.location,
-              name: newContent.name,
-            })
+            setNewContent({ ...newContent, content: e.target.value })
           }
-          className={`bg-transparent text-black input w-full h-full p-2`}
+          className="bg-transparent text-black input w-full h-full p-2"
         />
-        <div className={`flex flex-row space-x-3 absolute bottom-16 left-4`}>
+
+        <div className="flex flex-row space-x-3 absolute bottom-16 left-4">
           {!isNewFile && (
             <button
               onClick={async () => {
@@ -205,8 +203,7 @@ export default function Note({
                 currentContent.content !== newContent.content
                   ? "bg-yellow-500"
                   : "bg-gray-700 cursor-default"
-              } 
-px-2 py-1 w-fit rounded-md text-yellow-950 flex flex-row space-x-1`}
+              } px-2 py-1 w-fit rounded-md text-yellow-950 flex flex-row space-x-1`}
             >
               <FaSave size={20} />
               <p>Save</p>
@@ -215,57 +212,45 @@ px-2 py-1 w-fit rounded-md text-yellow-950 flex flex-row space-x-1`}
 
           <button
             onClick={() => setShowSaveAsDialog(true)}
-            className={`bg-yellow-500 px-2 py-1 w-fit rounded-md text-yellow-950 flex flex-row space-x-1`}
+            className="bg-yellow-500 px-2 py-1 w-fit rounded-md text-yellow-950 flex flex-row space-x-1"
           >
             <FaRegSave size={20} />
             <p>Save As</p>
           </button>
+
           {showSaveAsDialog && (
-            <div className={`flex flex-row space-x-1 h-[31px]`}>
+            <div className="flex flex-row space-x-1 h-[31px]">
               <input
-                id={"newFileName"}
+                id="newFileName"
                 type="text"
-                className={`text-white rounded-lg w-[150px] p-1 px-2 border-2 border-yellow-500`}
-                placeholder={"enter file name"}
+                className="text-white rounded-lg w-[150px] p-1 px-2 border-2 border-yellow-500"
+                placeholder="enter file name"
               />
               <button
-                onClick={async (e) => {
-                  const status = await saveFile(
-                    (document.getElementById("newFileName") as HTMLInputElement)
-                      .value + ".txt"
-                  );
+                onClick={async () => {
+                  const input = document.getElementById(
+                    "newFileName"
+                  ) as HTMLInputElement;
+                  const status = await saveFile(input.value + ".txt");
                   if (status) {
-                    setCustomName(
-                      (
-                        document.getElementById(
-                          "newFileName"
-                        ) as HTMLInputElement
-                      ).value + ".txt"
-                    );
+                    setCustomName(input.value + ".txt");
                     setShowSaveAsDialog(false);
                   }
                 }}
-                className={"text-sm bg-yellow-500 px-2 text rounded-lg"}
+                className="text-sm bg-yellow-500 px-2 text rounded-lg"
               >
                 Confirm
               </button>
             </div>
           )}
+
           {showConfirmDialog && (
-            <div className={"text-sm flex flex-row h-fit space-x-1"}>
-              <div
-                className={
-                  "bg-green-400 flex flex-row px-2 py-1 rounded-lg space-x-1"
-                }
-              >
+            <div className="text-sm flex flex-row h-fit space-x-1">
+              <div className="bg-green-400 flex flex-row px-2 py-1 rounded-lg space-x-1">
                 <FaCircleInfo size={20} />
                 <p>{message.content}</p>
               </div>
-              <div
-                className={
-                  "bg-green-400 flex flex-row px-2 py-1 rounded-lg space-x-1"
-                }
-              >
+              <div className="bg-green-400 flex flex-row px-2 py-1 rounded-lg space-x-1">
                 <FaVolumeHigh size={20} />
                 <p>Confirm/Cancel</p>
               </div>
