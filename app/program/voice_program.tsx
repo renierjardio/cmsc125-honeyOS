@@ -226,28 +226,35 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     if (scheduleMatch) {
       const method = schedulerMap[scheduleMatch[1]];
       if (method) {
-        OpenSchedManager({ openedWindows, setOpenedWindows });
+        const schedManagerIndex = openedWindows.findIndex(
+          (window) => window.name === "Scheduler Manager"
+        );
+
+        const isSchedManagerOpen =
+          schedManagerIndex !== -1 &&
+          openedWindows[schedManagerIndex].html !== null;
+
+        if (!isSchedManagerOpen) {
+          OpenSchedManager({ openedWindows, setOpenedWindows });
+        }
+
         let mode: 1 | 2 | 3 | 4;
         switch (method) {
           case "fcfs":
             mode = 1;
             setSchedulerMode(mode);
-            FCFS();
             break;
           case "sjf":
             mode = 2;
             setSchedulerMode(mode);
-            SJF();
             break;
           case "priority":
             mode = 3;
             setSchedulerMode(mode);
-            PRIORITY();
             break;
           case "rr":
             mode = 4;
             setSchedulerMode(mode);
-            ROUND_ROBIN();
             break;
           default:
             speak(`Scheduling method ${method} is not supported.`);
