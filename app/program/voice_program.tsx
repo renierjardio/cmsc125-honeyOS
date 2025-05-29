@@ -24,6 +24,7 @@ import { MemoryManagerContext } from "../context/memoryManagerContext";
 import { appWindow } from "@tauri-apps/api/window";
 import { AlgoType } from "../context/memoryManagerContext";
 import { CameraContext } from "../context/cameraContext";
+import { NoteContext } from "../context/noteContext";
 
 type SpeechRecognitionResultEvent = {
   results: SpeechRecognitionResultList;
@@ -193,12 +194,34 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     useContext(SchedulerContext);
   const { simulateAlgorithm, setSelectedAlgo } =
     useContext(MemoryManagerContext);
+  const { setNewContent } = useContext(NoteContext);
 
   const { captureImage } = useContext(CameraContext);
 
   const handleSpeechCommand = (transcript: string) => {
     setUserSpeech(transcript);
     const lower = transcript.toLowerCase().trim();
+
+    const typeMatch = lower.match(/^honey[,]?\s*type\s+(.+?)\s*please\.?$/);
+    if (typeMatch) {
+      const typedWords = typeMatch[1];
+
+      const noteIndex = openedWindows.findIndex(
+        (w) => w.name === "Note" && w.html !== null
+      );
+
+      if (noteIndex !== -1) {
+        speak("Typing in note.");
+        setNewContent((prev) => ({
+          ...prev,
+          content: typedWords,
+        }));
+      } else {
+        speak("Please open the note first before typing.");
+      }
+
+      return;
+    }
 
     const match = lower.match(
       /^honey[,]?\s*(open|close|shut|maximize|restore|minimize)\s+(.+?)\s*,?\s*please\.?$/
