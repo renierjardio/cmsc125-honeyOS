@@ -216,7 +216,11 @@ export default function WindowScreen({
             {icon}{" "}
             {<p className={`text-md`}>{customName ? customName : name}</p>}
           </span>
-          <div className="flex space-x-2 items-center pr-[1vw] text-black">
+          <div
+            className={`flex space-x-2 items-center pr-[1vw] text-black ${
+              openedWindows[windowIndex].maximized ? "mt-8" : "mt-0"
+            }`}
+          >
             <button
               className=""
               onClick={() => {

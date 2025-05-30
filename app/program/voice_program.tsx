@@ -60,7 +60,7 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
     camera: ["camera", "cam"],
     "file manager": ["filemanager", "files", "explorer"],
     "scheduler manager": ["schedule", "scheduler", "scheduler manager"],
-    "memory manager": ["memory", "ram", "memory manager"],
+    "memory manager": ["memory", "ram", "memory manager", "memory management"],
     "voice program": ["voice program", "voice", "voice command"],
   };
 
@@ -275,17 +275,17 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
 
         if (index !== -1) {
           const win = openedWindows[index];
-          if (!win.maximized && !win.minimized) {
-            speak(`${win.name} is already restored.`);
+          if (win.maximized && !win.minimized) {
+            speak(`${win.name} is already maximized.`);
           } else {
             const updated = [...openedWindows];
             updated[index] = {
               ...win,
-              maximized: false,
+              maximized: true,
               minimized: false,
             };
             setOpenedWindows(updated);
-            speak(`Restoring ${win.name}.`);
+            speak(`Maximizing ${win.name}.`);
           }
         } else {
           speak(`${command} is not currently open.`);
@@ -296,13 +296,17 @@ export default function Voice_Program({ windowIndex }: WindowProps) {
         );
 
         if (index !== -1) {
-          if (!openedWindows[index].maximized) {
+          if (
+            !openedWindows[index].maximized &&
+            !openedWindows[index].minimized
+          ) {
             speak(`${openedWindows[index].name} is already restored.`);
           } else {
             const updated = [...openedWindows];
             updated[index] = {
               ...updated[index],
               maximized: false,
+              minimized: false,
             };
             setOpenedWindows(updated);
             speak(`Restoring ${openedWindows[index].name}.`);

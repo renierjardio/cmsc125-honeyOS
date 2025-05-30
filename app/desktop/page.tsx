@@ -46,7 +46,7 @@ export default function Desktop() {
       </div>
 
       {/* Time & Date Display */}
-      <div className="absolute top-4 right-4 z-30 text-[#743D31] font-mono text-sm bg-[#ffe165] px-3 py-1 rounded-xl shadow-md border border-2 border-[#fea24f]">
+      <div className="absolute top-4 right-4 z-0 text-[#743D31] font-mono text-sm bg-[#ffe165] px-3 py-1 rounded-xl shadow-md border border-2 border-[#fea24f]">
         <div>{formattedTime}</div>
         <div className="text-xs">{formattedDate}</div>
       </div>
