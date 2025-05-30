@@ -78,10 +78,10 @@ export default function Camera({ windowIndex }: WindowProps) {
       windowIndex={windowIndex}
       icon={<FaCamera size={25} color="yellow" />}
     >
-      <div className="flex flex-col items-center justify-center p-8 gap-4 w-full h-full overflow-auto mx-auto">
+      <div className="flex flex-col items-center justify-center pt-16 p-8 gap-4 w-full h-full overflow-auto mx-auto">
         {!showGallery ? (
           <>
-            <div className="w-auto aspect-[4/3] rounded-lg overflow-hidden border border-2 border-[#743D31]">
+            <div className="w-auto h-full aspect-[4/3] rounded-lg overflow-hidden border border-2 border-[#743D31]">
               <Webcam
                 audio={false}
                 ref={webcamRef}
