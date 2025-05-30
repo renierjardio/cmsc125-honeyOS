@@ -47,11 +47,11 @@ export default function ImageViewerWindow({
       icon={<BiImage size={25} color="yellow" />}
     >
       <div className="flex flex-col items-center justify-center p-8 gap-4 w-full h-full overflow-auto mx-auto relative">
-        <div className="w-auto max-w-full max-h-[80vh] aspect-auto rounded-lg overflow-hidden border border-2 border-[#743D31] shadow-lg">
+        <div className="w-auto h-full max-w-full max-h-[80vh] rounded-lg overflow-hidden border border-2 border-[#743D31] shadow-lg">
           <img
             src={imageSrc}
             alt={name}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
         </div>
 
