@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next.js + Tauri Desktop App
 
-## Getting Started
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app), and packaged as a cross-platform desktop application using [Tauri](https://tauri.app/).
 
-First, run the development server:
+## 🚀 Getting Started
+
+### 1. Install Dependencies
+
+Before running the app, make sure you have all necessary dependencies installed:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> Make sure you have [Rust](https://www.rust-lang.org/tools/install), [Node.js](https://nodejs.org/), and [Tauri prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites) installed for your operating system.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Start the App in Development Mode
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Run the Tauri development server:
 
-## Learn More
+```bash
+npm run tauri dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+This will:
+- Start the Next.js development server
+- Launch the Tauri application window using the local server
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+You can also access the app in your browser at [http://localhost:3000](http://localhost:3000), but the full experience is designed for the Tauri shell.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## 🛠 Project Structure
 
-## Deploy on Vercel
+- `app/page.tsx`: Main page entry for your Next.js frontend.
+- `src-tauri/`: Tauri backend configuration and Rust source files.
+- `public/`: Static assets.
+- `styles/`: Global and module-level CSS.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ✨ Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- ✅ Cross-platform desktop app with web technologies
+- ⚡ Fast development with Next.js hot reloading
+- 🔐 Secure and lightweight using Tauri
+- 🎨 Optimized font loading with [`next/font`](https://nextjs.org/docs/basic-features/font-optimization)
+
+## 📚 Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs) – Learn about Next.js features and API.
+- [Tauri Documentation](https://tauri.app/v1/guides/) – Learn how to build desktop apps with Tauri.
+- [Rust Language Book](https://doc.rust-lang.org/book/) – Learn the Rust programming language (used in Tauri backend).
+- [Next.js GitHub](https://github.com/vercel/next.js)
+- [Tauri GitHub](https://github.com/tauri-apps/tauri)
+
+## ☁️ Deploying the Web Version
+
+If you'd like to deploy the **web version** of your app (excluding Tauri functionality), you can use [Vercel](https://vercel.com/) for simple deployment:
+
+```bash
+npm run build
+npm start
+```
+
+Read more on the [Next.js deployment documentation](https://nextjs.org/docs/deployment).
+
+> Note: The Tauri features will only work in the desktop app and are not available in the web build.
